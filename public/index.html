@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>室友监控指数™ Roommate Radar™</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>室友监控指数™ <span class="english-title">Roommate Radar™</span></h1>
+            <p class="subtitle">一键发现室友是否在装 💯</p>
+        </header>
+
+        <!-- AI 室友发言模拟器 -->
+        <div class="speech-simulator">
+            <h2>🧠 室友发言模拟器</h2>
+            <div class="tone-selector">
+                <span>语气模式：</span>
+                <label><input type="radio" name="tone" value="passive" checked> 冷暴力</label>
+                <label><input type="radio" name="tone" value="pitiful"> 可怜兮兮</label>
+                <label><input type="radio" name="tone" value="sophistry"> 强词夺理</label>
+            </div>
+            <div class="speech-bubble hidden" id="speech-bubble">
+                <p id="speech-content"></p>
+            </div>
+            <button id="generate-speech" class="speech-btn">生成室友发言</button>
+        </div>
+        <!-- 修改聊天部分HTML，使用独特的ID -->
+        <div class="chat-section">
+            <h2>🙄 与你的Mean室友聊天</h2>
+            <div class="chat-container" id="gemini-chat-container">
+                <!-- 初始消息会由JavaScript动态添加 -->
+            </div>
+            <div class="input-container">
+                <input type="text" id="gemini-user-input" placeholder="小心说话...">
+                <button id="gemini-send-btn" class="chat-btn">发送</button>
+            </div>
+        </div>
+        <form id="roommateForm">
+            <div class="form-section">
+                <h2>日常行为</h2>
+                
+                <div class="form-item">
+                    <input type="checkbox" id="dishes" name="dishes">
+                    <label for="dishes">今天洗碗了吗？</label>
+                </div>
+                
+                <div class="form-item">
+                    <input type="checkbox" id="shampoo" name="shampoo">
+                    <label for="shampoo">用了你的洗发水？</label>
+                </div>
+                
+                <div class="form-item">
+                    <input type="checkbox" id="noise" name="noise">
+                    <label for="noise">半夜打游戏到3点？</label>
+                </div>
+                
+                <div class="form-item">
+                    <input type="checkbox" id="trash" name="trash">
+                    <label for="trash">忘记倒垃圾？</label>
+                </div>
+                
+                <div class="form-item">
+                    <input type="checkbox" id="food" name="food">
+                    <label for="food">偷吃你的零食？</label>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>作息时间</h2>
+                
+                <div class="form-item">
+                    <label for="wake_time">起床时间：</label>
+                    <input type="time" id="wake_time" name="wake_time">
+                </div>
+                
+                <div class="form-item">
+                    <label for="sleep_time">睡觉时间：</label>
+                    <input type="time" id="sleep_time" name="sleep_time">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>社交方面</h2>
+                
+                <div class="form-item">
+                    <input type="checkbox" id="visitors" name="visitors">
+                    <label for="visitors">不告知就带朋友回来？</label>
+                </div>
+                
+                <div class="form-item">
+                    <input type="checkbox" id="noisy_calls" name="noisy_calls">
+                    <label for="noisy_calls">大声语音通话？</label>
+                </div>
+            </div>
+
+            <button type="submit" class="calculate-btn">计算装指数</button>
+        </form>
+
+        <div id="result" class="hidden">
+            <h2 id="score-title">计算中...</h2>
+            <div class="score-container">
+                <div class="score-circle">
+                    <span id="score-value">0</span>
+                </div>
+            </div>
+            <img id="avatar" src="" alt="室友状态">
+            <p id="comment"></p>
+            <button id="share-btn">分享监控报告</button>
+            <button id="reset-btn">重新评估</button>
+        </div>
+
+
+    </div>
+
+    <div id="comments-container"></div>
+
+    <script src="script.js"></script>
+    <script src="mean-roommate.js"></script>
+
+    <!-- Mean Roommate聊天功能 -->
+    <script>
+    (function() {
+        // 等待DOM完全加载
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('正在初始化Mean室友聊天功能');
+            
+            // 获取聊天元素
+            const chatContainer = document.getElementById('gemini-chat-container');
+            const userInput = document.getElementById('gemini-user-input');
+            const sendBtn = document.getElementById('gemini-send-btn');
+            
+            // 检查元素是否存在
+            if (!chatContainer) {
+                console.error('找不到聊天容器元素 #gemini-chat-container');
+                return;
+            }
+            if (!userInput) {
+                console.error('找不到输入框元素 #gemini-user-input');
+                return;
+            }
+            if (!sendBtn) {
+                console.error('找不到发送按钮元素 #gemini-send-btn');
+                return;
+            }
+            
+            console.log('Mean室友聊天元素已找到');
+            
+            // Mean室友起始语
+            const initialResponses = [
+                "又是你啊？有事说事，别耽误我时间。",
+                "嗯？什么事？我很忙的。",
+                "（抬头看你一眼，又低头玩手机）",
+                "哦，是你啊，有话快说。"
+            ];
+            
+            // 随机选择一个初始消息
+            const initialMessage = initialResponses[Math.floor(Math.random() * initialResponses.length)];
+            
+            // 确保初始消息显示在容器中
+            if (chatContainer.children.length === 0) {
+                const initialMessageDiv = document.createElement('div');
+                initialMessageDiv.className = 'message bot-message';
+                initialMessageDiv.textContent = initialMessage;
+                chatContainer.appendChild(initialMessageDiv);
+            }
+            
+            // 聊天历史
+            let chatHistory = [
+                {
+                    role: "model", 
+                    content: initialMessage
+                }
+            ];
+            
+            // 发送消息功能
+            async function sendMessage() {
+                const message = userInput.value.trim();
+                if (!message) return;
+                
+                // 清空输入框
+                userInput.value = '';
+                
+                // 显示用户消息
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'message user-message';
+                userMessageDiv.textContent = message;
+                chatContainer.appendChild(userMessageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                // 添加到历史
+                chatHistory.push({
+                    role: "user",
+                    content: message
+                });
+                
+                // 显示加载中
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'message bot-message';
+                loadingDiv.innerHTML = '<div class="loading"></div>';
+                chatContainer.appendChild(loadingDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                try {
+                    // 定义Mean室友系统提示
+                    const SYSTEM_PROMPT = "你是一个冷漠、被动、刻薄、逃避责任的室友。你不喜欢聊天，也不愿意帮忙。回应要简短、冷淡、敷衍，最好带点酸味。你讨厌做家务，总是找借口推脱责任。你的回复要简短且多样化，不要重复同样的句子。";
+                    
+                    // 随机决定是否冷暴力不回复 (15%概率)
+                    if (Math.random() < 0.15) {
+                        // 移除加载状态
+                        chatContainer.removeChild(loadingDiv);
+                        
+                        // 显示冷暴力回复
+                        const coldResponse = "(无视你，继续刷手机)";
+                        const responseDiv = document.createElement('div');
+                        responseDiv.className = 'message bot-message';
+                        responseDiv.textContent = coldResponse;
+                        chatContainer.appendChild(responseDiv);
+                        
+                        // 添加到历史
+                        chatHistory.push({
+                            role: "model",
+                            content: coldResponse
+                        });
+                        
+                        return;
+                    }
+                    
+                    // 构建API请求内容
+                    const requestBody = {
+                        history: [
+                            // 第一条是系统提示
+                            {
+                                role: "system",
+                                content: SYSTEM_PROMPT
+                            },
+                            // 然后是用户的实际对话历史
+                            ...chatHistory
+                        ]
+                    };
+                    
+                    // 发送API请求
+                    console.log('发送API请求到 /api/chat');
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+                    
+                    // 移除加载状态
+                    chatContainer.removeChild(loadingDiv);
+                    
+                    if (!response.ok) {
+                        throw new Error('API请求失败: ' + response.status);
+                    }
+                    
+                    // 处理响应
+                    const data = await response.json();
+                    
+                    // 显示回复
+                    const responseDiv = document.createElement('div');
+                    responseDiv.className = 'message bot-message';
+                    responseDiv.textContent = data.response;
+                    chatContainer.appendChild(responseDiv);
+                    
+                    // 添加到历史
+                    chatHistory.push({
+                        role: "model",
+                        content: data.response
+                    });
+                    
+                    // 滚动到底部
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    
+                } catch (error) {
+                    console.error('聊天错误:', error);
+                    
+                    // 移除加载状态(如果还存在)
+                    if (chatContainer.contains(loadingDiv)) {
+                        chatContainer.removeChild(loadingDiv);
+                    }
+                    
+                    // Mean室友备用回复
+                    const meanResponses = [
+                        "管好你自己的事吧，我现在没心情聊天。",
+                        "又来烦我？我很忙的，知道吗？",
+                        "我不想谈这个，你能不能自己解决一次？",
+                        "你总是这样，有完没完啊？",
+                        "随便吧，反正你说了算。",
+                        "嗯哼，然后呢？",
+                        "行了，知道了，还有事吗？"
+                    ];
+                    
+                    const fallbackResponse = meanResponses[Math.floor(Math.random() * meanResponses.length)];
+                    
+                    // 显示备用回复
+                    const responseDiv = document.createElement('div');
+                    responseDiv.className = 'message bot-message';
+                    responseDiv.textContent = fallbackResponse;
+                    chatContainer.appendChild(responseDiv);
+                    
+                    // 添加到历史
+                    chatHistory.push({
+                        role: "model",
+                        content: fallbackResponse
+                    });
+                    
+                    // 滚动到底部
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+            }
+            
+            // 绑定发送按钮点击事件
+            sendBtn.addEventListener('click', function() {
+                console.log('发送按钮被点击');
+                sendMessage();
+            });
+            
+            // 绑定输入框回车事件
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    console.log('检测到回车键');
+                    sendMessage();
+                }
+            });
+            
+            console.log('Mean室友聊天功能初始化完成');
+        });
+    })();
+    </script>
+</body>
+</html>
