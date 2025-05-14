@@ -9,10 +9,17 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// 中间件
-app.use(cors());
+// 启用CORS - 重要！允许GitHub Pages前端访问
+app.use(cors({
+  origin: '*', // 生产环境应该设置为特定域名
+  methods: ['GET', 'POST']
+}));
+
 app.use(express.json());
 app.use(express.static('public'));
+
+// 使用环境变量中的Google凭证
+process.env.GOOGLE_APPLICATION_CREDENTIALS = process.env.GOOGLE_CREDENTIALS_JSON;
 
 // 查找服务账号文件
 function findServiceAccountFile() {
@@ -60,13 +67,11 @@ let accessToken = null;
 let tokenExpiry = 0;
 
 async function getAccessToken() {
-  // 如果令牌不存在或已过期，则获取新令牌
   if (!accessToken || Date.now() > tokenExpiry) {
     try {
       const client = await auth.getClient();
       const token = await client.getAccessToken();
       accessToken = token.token;
-      // 令牌通常有效期为1小时，但我们设置为50分钟以确保安全
       tokenExpiry = Date.now() + 50 * 60 * 1000;
       console.log('成功获取新的访问令牌');
     } catch (error) {
@@ -187,7 +192,7 @@ app.get('/api/list-models', async (req, res) => {
 // 在server.js中添加这个新的API端点
 app.post('/api/chat', async (req, res) => {
   try {
-    console.log('收到聊天请求');
+    console.log('收到聊天请求', req.body);
     
     // 获取访问令牌
     const token = await getAccessToken();
@@ -198,55 +203,31 @@ app.post('/api/chat', async (req, res) => {
       throw new Error('缺少有效的聊天历史');
     }
 
-    // 添加系统提示（如果前端没有提供）
+    // Mean室友系统提示
+    const SYSTEM_PROMPT = "你是一个冷漠、被动、刻薄、逃避责任的室友。你不喜欢聊天，也不愿意帮忙。回应要简短、冷淡、敷衍，最好带点酸味。你讨厌做家务，总是找借口推脱责任。你的回复要多样化，不要重复同样的句子。";
+    
+    // 构建请求内容
     let contents = [];
-    let systemPromptAdded = false;
-
-    // 检查历史中第一条是否是系统提示
-    if (history.length > 0 && history[0].role === "system") {
-      systemPromptAdded = true;
-      // 单独提取系统提示
-      const systemPrompt = history[0].content;
-      console.log('使用提供的系统提示:', systemPrompt);
-      
-      // 添加为用户消息（Gemini API格式要求）
-      contents.push({
-        role: "user",
-        parts: [{ text: systemPrompt }]
-      });
-      
-      // 添加模型确认
-      contents.push({
-        role: "model",
-        parts: [{ text: "好的，我会按照指示进行回复。" }]
-      });
-    }
-
-    // 如果没有系统提示，添加默认的Mean室友设定
-    if (!systemPromptAdded) {
-      const DEFAULT_SYSTEM_PROMPT = "你是一个冷漠、被动、刻薄、逃避责任的室友。表面沉默，实则暗藏锋芒，善于在混乱中撇清自己，却从不真正承担。你不愿帮忙，不主动沟通，也从不正面表达立场。你总是在别人快撑不住的时候，补上一句“那不是我的问题”。";
-      
-      contents.push({
-        role: "user",
-        parts: [{ text: DEFAULT_SYSTEM_PROMPT }]
-      });
-      
-      contents.push({
-        role: "model",
-        parts: [{ text: "明白了，我会扮演一个冷漠刻薄的室友。" }]
-      });
-    }
     
-    // 添加实际对话历史，跳过系统提示
-    const startIndex = systemPromptAdded ? 1 : 0;
-    for (let i = startIndex; i < history.length; i++) {
+    // 添加系统提示
+    contents.push({
+      role: "user",
+      parts: [{ text: SYSTEM_PROMPT }]
+    });
+    
+    // 添加模型确认
+    contents.push({
+      role: "model",
+      parts: [{ text: "明白了，我会扮演一个冷漠刻薄的室友。" }]
+    });
+    
+    // 添加实际对话历史
+    for (let msg of history) {
       contents.push({
-        role: history[i].role === 'user' ? 'user' : 'model',
-        parts: [{ text: history[i].content }]
+        role: msg.role === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.content }]
       });
     }
-    
-    console.log('发送到Gemini的对话:', JSON.stringify(contents, null, 2));
     
     // 调用Gemini API
     const response = await axios.post(
@@ -295,6 +276,11 @@ app.post('/api/chat', async (req, res) => {
       response: randomResponse 
     });
   }
+});
+
+// 健康检查端点（Render需要）
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
 });
 
 app.listen(port, () => {

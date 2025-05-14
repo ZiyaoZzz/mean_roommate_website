@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: roommate-radar-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: GOOGLE_CREDENTIALS_JSON
+        sync: false
