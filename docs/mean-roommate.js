@@ -66,15 +66,13 @@
             try {
                 console.log('发送API请求到/api/chat');
                 // 使用正确的API端点
-                const response = await fetch('/api/chat', {
+                const response = await fetch('https://mean-roommate-api.onrender.com/api/chat', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                      'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ 
-                        history: chatHistory
-                    })
-                });
+                    body: JSON.stringify({ history: chatHistory })
+                  });
                 
                 // 移除加载状态
                 chatContainer.removeChild(loadingDiv);

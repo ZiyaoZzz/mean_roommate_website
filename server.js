@@ -9,14 +9,12 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// 启用CORS - 重要！允许GitHub Pages前端访问
-app.use(cors({
-  origin: '*', // 生产环境应该设置为特定域名
-  methods: ['GET', 'POST']
-}));
-
+// 启用CORS - 允许GitHub Pages访问
+app.use(cors());
 app.use(express.json());
+
 app.use(express.static('public'));
+app.use(express.static('docs'));
 
 // 使用环境变量中的Google凭证
 process.env.GOOGLE_APPLICATION_CREDENTIALS = process.env.GOOGLE_CREDENTIALS_JSON;
