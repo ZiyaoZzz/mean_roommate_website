@@ -37,29 +37,43 @@ document.addEventListener('DOMContentLoaded', function() {
     // 异步加载问题数据
     async function loadQuestions() {
         try {
-            // 添加错误日志以便调试
             console.log("开始加载问卷问题...");
             
             // 尝试多个可能的路径
             let response;
-            try {
-                // 尝试相对路径
-                response = await fetch('./questions.json');
-                if (!response.ok) throw new Error("相对路径加载失败");
-            } catch (e) {
-                console.log("尝试使用绝对路径...");
+            let fetchPath = '';
+            
+            // 尝试这些路径顺序是有意义的 - 从最可能到最不可能
+            const possiblePaths = [
+                '/questions.json',         // 网站根目录
+                './questions.json',        // 当前目录
+                '../questions.json',       // 上一级目录
+                '/docs/questions.json',    // docs目录
+                'https://mean-roommate-website.onrender.com/questions.json' // 完整URL (最后尝试)
+            ];
+            
+            // 尝试每个路径直到成功
+            for (const path of possiblePaths) {
                 try {
-                    response = await fetch('/docs/questions.json');
-                    if (!response.ok) throw new Error("绝对路径加载失败");
+                    console.log(`尝试从 ${path} 加载...`);
+                    response = await fetch(path);
+                    
+                    if (response.ok) {
+                        console.log(`成功从 ${path} 加载`);
+                        fetchPath = path;
+                        break;
+                    }
                 } catch (e) {
-                    console.log("尝试第二个绝对路径...");
-                    response = await fetch('/questions.json');
-                    if (!response.ok) throw new Error("所有路径都加载失败");
+                    console.log(`从 ${path} 加载失败: ${e.message}`);
                 }
             }
             
+            if (!response || !response.ok) {
+                throw new Error(`所有路径尝试均失败`);
+            }
+            
             questions = await response.json();
-            console.log(`成功加载 ${questions.length} 个问题`);
+            console.log(`成功从 ${fetchPath} 加载 ${questions.length} 个问题`);
             
             // 初始化用户答案数组
             userAnswers = new Array(questions.length).fill(null);
@@ -69,7 +83,6 @@ document.addEventListener('DOMContentLoaded', function() {
             updateProgressBar();
         } catch (error) {
             console.error('加载问题出错:', error);
-            // 显示更有帮助的错误信息
             quizContainer.innerHTML = `
                 <div class="error-message">
                     <p>加载问题失败: ${error.message}</p>
