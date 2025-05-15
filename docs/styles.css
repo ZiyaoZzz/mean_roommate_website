@@ -400,3 +400,753 @@ input[type="time"] {
     90% { opacity: 1; }
     100% { opacity: 0; }
 }
+
+/* 人格选择区域样式 */
+.personality-selector {
+    background-color: #fff8f8;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 2px dashed #e74c3c;
+}
+
+.personality-selector h3 {
+    text-align: center;
+    color: #e74c3c;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.personality-options {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.personality-option {
+    flex: 1;
+    min-width: 120px;
+    background-color: #ffebee;
+    border: 1px solid #ffcdd2;
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.personality-option:hover {
+    background-color: #ffcdd2;
+    transform: translateY(-2px);
+}
+
+.personality-option input[type="radio"] {
+    display: none;
+}
+
+.personality-option input[type="radio"]:checked + .personality-icon {
+    transform: scale(1.2);
+}
+
+.personality-option input[type="radio"]:checked ~ .personality-name {
+    font-weight: bold;
+    color: #c0392b;
+}
+
+.personality-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    transition: transform 0.3s;
+}
+
+.personality-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.personality-desc {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.mean-level-control {
+    background-color: #f8f8f8;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.mean-level-control h4 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #333;
+}
+
+.slider {
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(to right, #8BC34A, #FFC107, #FF5722);
+    outline: none;
+    border-radius: 4px;
+    -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #e74c3c;
+    cursor: pointer;
+}
+
+.level-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* 消息容器样式 */
+.message-container {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.user-container {
+    justify-content: flex-end;
+}
+
+.bot-container {
+    justify-content: flex-start;
+}
+
+/* 头像样式 */
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 8px;
+    flex-shrink: 0;
+    border: 2px solid #ddd;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 调整消息气泡样式 */
+.message {
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    word-wrap: break-word;
+}
+
+.user-message {
+    background-color: #3498db;
+    color: white;
+    border-bottom-right-radius: 5px;
+}
+
+.bot-message {
+    background-color: #ffebee;
+    color: #c0392b;
+    border-bottom-left-radius: 5px;
+    border-left: 3px solid #e74c3c;
+}
+
+/* 室友人格诊断系统样式 */
+.personality-diagnosis {
+    margin-top: 30px;
+    background-color: #f8f8f8;
+    border-radius: 10px;
+    padding: 20px;
+    border: 2px dashed #3498db;
+}
+
+.personality-diagnosis h3 {
+    color: #3498db;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.personality-chart {
+    margin-bottom: 25px;
+}
+
+.chart-container {
+    width: 100%;
+}
+
+.chart-bar {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.bar-label {
+    width: 120px;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.bar-outer {
+    flex: 1;
+    background-color: #f0f0f0;
+    height: 25px;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+}
+
+.bar-inner {
+    height: 100%;
+    background-color: #e67e22;
+    border-radius: 15px;
+}
+
+#lazy-bar {
+    background-color: #e67e22;
+}
+
+#liar-bar {
+    background-color: #9b59b6;
+}
+
+#clown-bar {
+    background-color: #e74c3c;
+}
+
+.percent-text {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #333;
+    font-weight: bold;
+}
+
+.personality-result {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.personality-result h4 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.personality-description {
+    line-height: 1.6;
+}
+
+.prevention-guide {
+    background-color: #eaf7fb;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+}
+
+.prevention-guide h4 {
+    color: #2980b9;
+    margin-bottom: 10px;
+}
+
+#prevention-content {
+    line-height: 1.6;
+}
+
+/* 室友人格诊断问卷样式 */
+.personality-quiz-section {
+    margin: 30px 0;
+    background-color: #f8f7f2;
+    border-radius: 10px;
+    padding: 25px;
+    border: 2px dashed #ff6b6b;
+}
+
+.personality-quiz-section h2 {
+    color: #ff6b6b;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.quiz-intro {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.quiz-progress {
+    margin-bottom: 20px;
+}
+
+.quiz-progress-bar {
+    height: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.quiz-progress-bar-inner {
+    height: 100%;
+    background-color: #ff6b6b;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.quiz-progress-text {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.quiz-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    min-height: 250px;
+}
+
+.quiz-question h3 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.question-text {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.quiz-option {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.quiz-option:hover {
+    background-color: #f0f0f0;
+}
+
+.quiz-option input[type="radio"] {
+    margin-right: 10px;
+}
+
+.quiz-option label {
+    flex: 1;
+    cursor: pointer;
+}
+
+.quiz-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.quiz-nav-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.quiz-nav-btn:hover {
+    background-color: #2980b9;
+}
+
+.quiz-nav-btn.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.quiz-submit-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #ccc;
+    color: #666;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: not-allowed;
+    transition: all 0.3s;
+}
+
+.quiz-submit-btn.active {
+    background-color: #ff6b6b;
+    color: white;
+    cursor: pointer;
+}
+
+.quiz-submit-btn.active:hover {
+    background-color: #ff5252;
+}
+
+.error-message {
+    color: #e74c3c;
+    text-align: center;
+    padding: 20px;
+}
+
+.quiz-loading {
+    text-align: center;
+    color: #666;
+    padding: 30px;
+}
+
+/* Add this general hidden class if it doesn't exist already */
+.hidden {
+    display: none;
+}
+
+/* 槽点回忆系统 CSS */
+.槽点-trigger-container {
+    margin: 30px 0;
+    text-align: center;
+}
+
+.槽点-trigger-btn {
+    background: linear-gradient(135deg, #ff5858 0%, #f09819 100%);
+    color: white;
+    font-size: 1.2rem;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 88, 88, 0.3);
+    transition: all 0.3s ease;
+}
+
+.槽点-trigger-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 88, 88, 0.4);
+}
+
+.槽点-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.槽点-modal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.槽点-modal-content {
+    background-color: white;
+    border-radius: 15px;
+    padding: 25px;
+    width: 85%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.槽点-modal h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.槽点-type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.槽点-type-item {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 15px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.槽点-type-item:hover {
+    background-color: #f0f7ff;
+    transform: translateY(-3px);
+}
+
+.槽点-type-item.selected {
+    background-color: #e1f0fa;
+    border: 2px solid #3498db;
+}
+
+.槽点-type-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.槽点-type-label {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.槽点-cancel-btn {
+    background-color: #eee;
+    color: #555;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto;
+}
+
+.槽点-behaviors-container {
+    margin-bottom: 20px;
+}
+
+.槽点-behavior-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 8px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.槽点-behavior-item:hover {
+    background-color: #f0f7ff;
+}
+
+.槽点-behavior-item label {
+    flex-grow: 1;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.槽点-behavior-scores {
+    color: #777;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    background: #eee;
+    border-radius: 10px;
+}
+
+.槽点-custom-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f7f7f7;
+    border-radius: 10px;
+}
+
+.槽点-custom-container.hidden {
+    display: none;
+}
+
+.槽点-custom-input {
+    margin-bottom: 15px;
+}
+
+.槽点-custom-input input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.槽点-slider-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.槽点-slider-group label {
+    flex: 0 0 80px;
+}
+
+.槽点-slider-group input {
+    flex: 1;
+    margin: 0 10px;
+}
+
+.槽点-emotion-container {
+    margin-bottom: 20px;
+}
+
+.槽点-emotion-rating {
+    display: flex;
+    justify-content: space-between;
+}
+
+.槽点-emotion-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.槽点-emotion-item:hover, .槽点-emotion-item.selected {
+    background-color: #f0f7ff;
+}
+
+.槽点-emotion-item.selected {
+    border: 2px solid #3498db;
+}
+
+.槽点-emotion-item span {
+    margin-top: 5px;
+    font-size: 0.8rem;
+}
+
+.槽点-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.槽点-back-btn, .槽点-submit-btn, .槽点-again-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.槽点-back-btn {
+    background-color: #eee;
+    color: #555;
+}
+
+.槽点-submit-btn, .槽点-again-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.槽点-result-card {
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.槽点-result-title {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.槽点-result-bars {
+    margin-bottom: 20px;
+}
+
+.槽点-result-bar {
+    margin-bottom: 12px;
+}
+
+.槽点-bar-label {
+    display: inline-block;
+    width: 70px;
+    color: #555;
+}
+
+.槽点-bar-outer {
+    display: inline-block;
+    width: calc(100% - 80px);
+    height: 20px;
+    background-color: #eee;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.槽点-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #9b59b6);
+    border-radius: 10px;
+    transition: width 0.8s ease;
+}
+
+.槽点-percent {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    line-height: 20px;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+.槽点-result-comment {
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 10px;
+    color: #e74c3c;
+    font-weight: bold;
+    text-align: center;
+    border-left: 5px solid #e74c3c;
+}
+
+/* 重置按钮样式 */
+.quiz-reset-btn {
+    display: inline-block;
+    margin-top: 15px;
+    margin-left: 10px;
+    padding: 8px 15px;
+    background-color: #f0f0f0;
+    color: #555;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.quiz-reset-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.quiz-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}

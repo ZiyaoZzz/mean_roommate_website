@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>室友监控指数™ Roommate Radar™</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="槽点-system.js"></script>
 </head>
 <body>
     <div class="container">
@@ -12,6 +13,11 @@
             <h1>室友监控指数™ <span class="english-title">Roommate Radar™</span></h1>
             <p class="subtitle">一键发现室友是否在装 💯</p>
         </header>
+
+        <!-- 确保这个按钮放在显眼的位置 -->
+        <div class="槽点-trigger-container">
+            <button id="槽点-trigger-btn" class="槽点-trigger-btn">🔥 回忆槽点瞬间</button>
+        </div>
 
         <!-- AI 室友发言模拟器 -->
         <div class="speech-simulator">
@@ -27,6 +33,7 @@
             </div>
             <button id="generate-speech" class="speech-btn">生成室友发言</button>
         </div>
+
         <!-- 修改聊天部分HTML，使用独特的ID -->
         <div class="chat-section">
             <h2>🙄 与你的Mean室友聊天</h2>
@@ -38,80 +45,227 @@
                 <button id="gemini-send-btn" class="chat-btn">发送</button>
             </div>
         </div>
-        <form id="roommateForm">
-            <div class="form-section">
-                <h2>日常行为</h2>
-                
-                <div class="form-item">
-                    <input type="checkbox" id="dishes" name="dishes">
-                    <label for="dishes">今天洗碗了吗？</label>
-                </div>
-                
-                <div class="form-item">
-                    <input type="checkbox" id="shampoo" name="shampoo">
-                    <label for="shampoo">用了你的洗发水？</label>
-                </div>
-                
-                <div class="form-item">
-                    <input type="checkbox" id="noise" name="noise">
-                    <label for="noise">半夜打游戏到3点？</label>
-                </div>
-                
-                <div class="form-item">
-                    <input type="checkbox" id="trash" name="trash">
-                    <label for="trash">忘记倒垃圾？</label>
-                </div>
-                
-                <div class="form-item">
-                    <input type="checkbox" id="food" name="food">
-                    <label for="food">偷吃你的零食？</label>
-                </div>
-            </div>
 
-            <div class="form-section">
-                <h2>作息时间</h2>
-                
-                <div class="form-item">
-                    <label for="wake_time">起床时间：</label>
-                    <input type="time" id="wake_time" name="wake_time">
+        <!-- 槽点类型选择模态框 -->
+        <div id="槽点-type-modal" class="槽点-modal hidden">
+            <div class="槽点-modal-content">
+                <h3>选择一个最贴近当下的槽点</h3>
+                <div class="槽点-type-grid">
+                    <div class="槽点-type-item" data-type="night">
+                        <div class="槽点-type-icon">🛏</div>
+                        <div class="槽点-type-label">半夜潜行动作</div>
+                    </div>
+                    <div class="槽点-type-item" data-type="bathroom">
+                        <div class="槽点-type-icon">🚽</div>
+                        <div class="槽点-type-label">厨卫尴尬现场</div>
+                    </div>
+                    <div class="槽点-type-item" data-type="noise">
+                        <div class="槽点-type-icon">🔊</div>
+                        <div class="槽点-type-label">声光轰炸</div>
+                    </div>
+                    <div class="槽点-type-item" data-type="food">
+                        <div class="槽点-type-icon">🍱</div>
+                        <div class="槽点-type-label">食物失踪记</div>
+                    </div>
+                    <div class="槽点-type-item" data-type="personal">
+                        <div class="槽点-type-icon">🧦</div>
+                        <div class="槽点-type-label">私人物品"创新"</div>
+                    </div>
+                    <div class="槽点-type-item" data-type="delivery">
+                        <div class="槽点-type-icon">📦</div>
+                        <div class="槽点-type-label">快递／收纳灾难</div>
+                    </div>
+                    <div class="槽点-type-item" data-type="social">
+                        <div class="槽点-type-icon">📱</div>
+                        <div class="槽点-type-label">社交／消息轰炸</div>
+                    </div>
+                    <div class="槽点-type-item" data-type="gaming">
+                        <div class="槽点-type-icon">🎮</div>
+                        <div class="槽点-type-label">游戏／追剧成瘾</div>
+                    </div>
+                    <div class="槽点-type-item" data-type="door">
+                        <div class="槽点-type-icon">🚪</div>
+                        <div class="槽点-type-label">门禁／安全失误</div>
+                    </div>
+                    <div class="槽点-type-item" data-type="emergency">
+                        <div class="槽点-type-icon">📅</div>
+                        <div class="槽点-type-label">紧急场景</div>
+                    </div>
+                    <div class="槽点-type-item" data-type="other">
+                        <div class="槽点-type-icon">➕</div>
+                        <div class="槽点-type-label">其他</div>
+                    </div>
                 </div>
-                
-                <div class="form-item">
-                    <label for="sleep_time">睡觉时间：</label>
-                    <input type="time" id="sleep_time" name="sleep_time">
-                </div>
+                <button id="槽点-type-cancel" class="槽点-cancel-btn">取消</button>
             </div>
-
-            <div class="form-section">
-                <h2>社交方面</h2>
-                
-                <div class="form-item">
-                    <input type="checkbox" id="visitors" name="visitors">
-                    <label for="visitors">不告知就带朋友回来？</label>
-                </div>
-                
-                <div class="form-item">
-                    <input type="checkbox" id="noisy_calls" name="noisy_calls">
-                    <label for="noisy_calls">大声语音通话？</label>
-                </div>
-            </div>
-
-            <button type="submit" class="calculate-btn">计算装指数</button>
-        </form>
-
-        <div id="result" class="hidden">
-            <h2 id="score-title">计算中...</h2>
-            <div class="score-container">
-                <div class="score-circle">
-                    <span id="score-value">0</span>
-                </div>
-            </div>
-            <img id="avatar" src="" alt="室友状态">
-            <p id="comment"></p>
-            <button id="share-btn">分享监控报告</button>
-            <button id="reset-btn">重新评估</button>
         </div>
 
+        <!-- 行为选择模态框 -->
+        <div id="槽点-behaviors-modal" class="槽点-modal hidden">
+            <div class="槽点-modal-content">
+                <h3 id="槽点-behaviors-title">选择发生的行为</h3>
+                <div id="槽点-behaviors-container" class="槽点-behaviors-container">
+                    <!-- 会动态填充行为选项 -->
+                </div>
+                
+                <!-- 其他自定义选项 -->
+                <div id="槽点-custom-container" class="槽点-custom-container hidden">
+                    <div class="槽点-custom-input">
+                        <input type="text" id="槽点-custom-text" placeholder="简单描述一句话...">
+                    </div>
+                    <div class="槽点-custom-sliders">
+                        <div class="槽点-slider-group">
+                            <label>懒散度:</label>
+                            <input type="range" id="槽点-lazy-slider" min="0" max="5" value="2">
+                            <span id="槽点-lazy-value">2</span>
+                        </div>
+                        <div class="槽点-slider-group">
+                            <label>毒舌度:</label>
+                            <input type="range" id="槽点-sarcasm-slider" min="0" max="5" value="2">
+                            <span id="槽点-sarcasm-value">2</span>
+                        </div>
+                        <div class="槽点-slider-group">
+                            <label>社交度:</label>
+                            <input type="range" id="槽点-social-slider" min="0" max="5" value="2">
+                            <span id="槽点-social-value">2</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="槽点-emotion-container">
+                    <h4>当时被坑程度 (1-5)</h4>
+                    <div class="槽点-emotion-rating">
+                        <div class="槽点-emotion-item" data-value="1">😒<span>1</span></div>
+                        <div class="槽点-emotion-item" data-value="2">😤<span>2</span></div>
+                        <div class="槽点-emotion-item" data-value="3">😡<span>3</span></div>
+                        <div class="槽点-emotion-item" data-value="4">🤬<span>4</span></div>
+                        <div class="槽点-emotion-item" data-value="5">💥<span>5</span></div>
+                    </div>
+                </div>
+                
+                <div class="槽点-buttons">
+                    <button id="槽点-behaviors-back" class="槽点-back-btn">返回</button>
+                    <button id="槽点-behaviors-submit" class="槽点-submit-btn">计算结果</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结果显示模态框 -->
+        <div id="槽点-result-modal" class="槽点-modal hidden">
+            <div class="槽点-modal-content">
+                <h3>槽点分析结果</h3>
+                <div class="槽点-result-card">
+                    <h4 id="槽点-result-title">本次槽点: "半夜拔插头"</h4>
+                    
+                    <div class="槽点-result-bars">
+                        <div class="槽点-result-bar">
+                            <span class="槽点-bar-label">懒散度:</span>
+                            <div class="槽点-bar-outer">
+                                <div id="槽点-lazy-bar" class="槽点-bar-inner"></div>
+                                <span id="槽点-lazy-percent" class="槽点-percent">45%</span>
+                            </div>
+                        </div>
+                        <div class="槽点-result-bar">
+                            <span class="槽点-bar-label">毒舌度:</span>
+                            <div class="槽点-bar-outer">
+                                <div id="槽点-sarcasm-bar" class="槽点-bar-inner"></div>
+                                <span id="槽点-sarcasm-percent" class="槽点-percent">55%</span>
+                            </div>
+                        </div>
+                        <div class="槽点-result-bar">
+                            <span class="槽点-bar-label">社交度:</span>
+                            <div class="槽点-bar-outer">
+                                <div id="槽点-social-bar" class="槽点-bar-inner"></div>
+                                <span id="槽点-social-percent" class="槽点-percent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="槽点-result-comment" id="槽点-result-comment">
+                        你的室友这波操作毒舌满分，已经超标啦！
+                    </div>
+                </div>
+                
+                <div class="槽点-buttons">
+                    <button id="槽点-result-again" class="槽点-again-btn">再来一次</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加室友人格诊断问卷系统 -->
+        <div class="personality-quiz-section">
+            <h2>🧟‍♂️ 室友人格诊断问卷</h2>
+            <p class="quiz-intro">回答以下问题，精准分析你的室友属于哪类人格！</p>
+            
+            <div class="quiz-progress">
+                <div class="quiz-progress-bar">
+                    <div id="quiz-progress-bar-inner" class="quiz-progress-bar-inner"></div>
+                </div>
+                <div id="quiz-progress-text" class="quiz-progress-text">0/12</div>
+            </div>
+            
+            <div id="personality-quiz-container" class="quiz-container">
+                <!-- 问题将通过JS动态加载 -->
+                <div class="quiz-loading">加载问题中...</div>
+            </div>
+            
+            <div class="quiz-navigation">
+                <button id="quiz-nav-prev" class="quiz-nav-btn disabled">上一题</button>
+                <button id="quiz-nav-next" class="quiz-nav-btn">下一题</button>
+            </div>
+            
+            <div class="quiz-buttons">
+                <button id="quiz-submit-btn" class="quiz-submit-btn" disabled>提交人格测验</button>
+                <button id="reset-btn" class="quiz-reset-btn">重新测试</button>
+            </div>
+            
+            <!-- 室友人格诊断系统结果 (默认隐藏) -->
+            <div id="personality-diagnosis-system" class="personality-diagnosis hidden">
+                <h3>室友人格诊断系统™</h3>
+                <div class="personality-chart">
+                    <div class="chart-container">
+                        <div class="chart-bar">
+                            <div class="bar-label">🦥 摸鱼怪</div>
+                            <div class="bar-outer">
+                                <div id="lazy-bar" class="bar-inner" style="width: 65%;"></div>
+                                <span id="lazy-percent" class="percent-text">65%</span>
+                            </div>
+                        </div>
+                        <div class="chart-bar">
+                            <div class="bar-label">👻 鬼话大师</div>
+                            <div class="bar-outer">
+                                <div id="liar-bar" class="bar-inner" style="width: 45%;"></div>
+                                <span id="liar-percent" class="percent-text">45%</span>
+                            </div>
+                        </div>
+                        <div class="chart-bar">
+                            <div class="bar-label">🤡 社交小丑</div>
+                            <div class="bar-outer">
+                                <div id="clown-bar" class="bar-inner" style="width: 30%;"></div>
+                                <span id="clown-percent" class="percent-text">30%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="personality-result">
+                    <h4>主要人格：<span id="main-personality">🦥 摸鱼怪</span></h4>
+                    <div class="personality-description" id="personality-description">
+                        你的室友是典型的"摸鱼怪"。喜欢赖床、偷吃零食、打游戏到深夜。对公共区域的清洁毫不关心，从不主动做家务，经常找借口逃避责任。
+                    </div>
+                </div>
+                <div class="prevention-guide">
+                    <h4>🛡️ 宿舍防骚扰指南</h4>
+                    <div id="prevention-content">
+                        <ul>
+                            <li><strong>设置明确的家务分配表</strong>，并拍照保存证据</li>
+                            <li>准备<strong>单独的食物储存区</strong>，并贴上名字标签</li>
+                            <li>睡前使用<strong>降噪耳机</strong>，避免游戏声音干扰</li>
+                            <li>永远不要相信"我待会就做"这种承诺</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 
@@ -159,12 +313,35 @@
             // 随机选择一个初始消息
             const initialMessage = initialResponses[Math.floor(Math.random() * initialResponses.length)];
             
-            // 确保初始消息显示在容器中
+            // 显示初始消息
             if (chatContainer.children.length === 0) {
-                const initialMessageDiv = document.createElement('div');
-                initialMessageDiv.className = 'message bot-message';
-                initialMessageDiv.textContent = initialMessage;
-                chatContainer.appendChild(initialMessageDiv);
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message-container bot-container';
+                
+                // 添加室友头像
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'avatar';
+                const avatarImg = document.createElement('img');
+                avatarImg.src = '../img/mean_avatar.jpeg';
+                avatarImg.alt = '室友头像';
+                avatarDiv.appendChild(avatarImg);
+                
+                // 添加消息气泡
+                const bubbleDiv = document.createElement('div');
+                bubbleDiv.className = 'message bot-message';
+                bubbleDiv.textContent = initialMessage;
+                
+                // 组装
+                messageDiv.appendChild(avatarDiv);
+                messageDiv.appendChild(bubbleDiv);
+                
+                chatContainer.appendChild(messageDiv);
+                
+                // 添加到历史
+                chatHistory.push({
+                    role: "model",
+                    content: initialMessage
+                });
             }
             
             // 聊天历史
@@ -184,11 +361,7 @@
                 userInput.value = '';
                 
                 // 显示用户消息
-                const userMessageDiv = document.createElement('div');
-                userMessageDiv.className = 'message user-message';
-                userMessageDiv.textContent = message;
-                chatContainer.appendChild(userMessageDiv);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
+                appendMessage(message, 'user');
                 
                 // 添加到历史
                 chatHistory.push({
@@ -197,11 +370,7 @@
                 });
                 
                 // 显示加载中
-                const loadingDiv = document.createElement('div');
-                loadingDiv.className = 'message bot-message';
-                loadingDiv.innerHTML = '<div class="loading"></div>';
-                chatContainer.appendChild(loadingDiv);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
+                appendMessage('<div class="loading"></div>', 'bot');
                 
                 try {
                     // 定义Mean室友系统提示
@@ -210,14 +379,11 @@
                     // 随机决定是否冷暴力不回复 (15%概率)
                     if (Math.random() < 0.15) {
                         // 移除加载状态
-                        chatContainer.removeChild(loadingDiv);
+                        removeMessage('bot');
                         
                         // 显示冷暴力回复
                         const coldResponse = "(无视你，继续刷手机)";
-                        const responseDiv = document.createElement('div');
-                        responseDiv.className = 'message bot-message';
-                        responseDiv.textContent = coldResponse;
-                        chatContainer.appendChild(responseDiv);
+                        appendMessage(coldResponse, 'bot');
                         
                         // 添加到历史
                         chatHistory.push({
@@ -252,7 +418,7 @@
                     });
                     
                     // 移除加载状态
-                    chatContainer.removeChild(loadingDiv);
+                    removeMessage('bot');
                     
                     if (!response.ok) {
                         throw new Error('API请求失败: ' + response.status);
@@ -262,10 +428,7 @@
                     const data = await response.json();
                     
                     // 显示回复
-                    const responseDiv = document.createElement('div');
-                    responseDiv.className = 'message bot-message';
-                    responseDiv.textContent = data.response;
-                    chatContainer.appendChild(responseDiv);
+                    appendMessage(data.response, 'bot');
                     
                     // 添加到历史
                     chatHistory.push({
@@ -298,10 +461,7 @@
                     const fallbackResponse = meanResponses[Math.floor(Math.random() * meanResponses.length)];
                     
                     // 显示备用回复
-                    const responseDiv = document.createElement('div');
-                    responseDiv.className = 'message bot-message';
-                    responseDiv.textContent = fallbackResponse;
-                    chatContainer.appendChild(responseDiv);
+                    appendMessage(fallbackResponse, 'bot');
                     
                     // 添加到历史
                     chatHistory.push({
@@ -330,7 +490,72 @@
             
             console.log('Mean室友聊天功能初始化完成');
         });
+
+        function appendMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-container ${sender}-container`;
+            
+            // 创建头像元素
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'avatar';
+            const avatarImg = document.createElement('img');
+            
+            // 设置不同的头像
+            if (sender === 'user') {
+                avatarImg.src = 'https://i.imgur.com/q19Tkjd.png'; // 用户头像URL
+                avatarImg.alt = '用户头像';
+            } else {
+                avatarImg.src = '../img/mean_avatar.jpeg';
+                avatarImg.alt = '室友头像';
+            }
+            
+            avatarDiv.appendChild(avatarImg);
+            
+            // 创建消息气泡
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = `message ${sender}-message`;
+            bubbleDiv.textContent = message;
+            
+            // 添加到容器
+            if (sender === 'user') {
+                messageDiv.appendChild(bubbleDiv);
+                messageDiv.appendChild(avatarDiv);
+            } else {
+                messageDiv.appendChild(avatarDiv);
+                messageDiv.appendChild(bubbleDiv);
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            
+            // 滚动到底部
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function removeMessage(sender) {
+            const messageDiv = document.querySelector(`.message-container.${sender}-container`);
+            if (messageDiv) {
+                chatContainer.removeChild(messageDiv);
+            }
+        }
     })();
+    </script>
+
+    <script src="personality-quiz.js"></script>
+
+    <!-- Add this to the very top of your script tag in index.html, before the closing </body> tag -->
+    <script>
+    // Debug initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM fully loaded");
+        // Check if important elements exist
+        console.log("槽点-trigger-btn exists:", !!document.getElementById('槽点-trigger-btn'));
+        console.log("槽点-type-modal exists:", !!document.getElementById('槽点-type-modal'));
+        
+        // Force initialize the system manually
+        if (typeof initMemoryTriggerSystem === 'function') {
+            initMemoryTriggerSystem();
+        }
+    });
     </script>
 </body>
 </html>

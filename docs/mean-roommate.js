@@ -1,43 +1,59 @@
 (function() {
     window.addEventListener('load', function() {
-        console.log('页面加载完成，初始化Mean室友聊天功能');
+        console.log('初始化Mean室友聊天功能');
         
         const chatContainer = document.getElementById('gemini-chat-container');
         const userInput = document.getElementById('gemini-user-input');
         const sendBtn = document.getElementById('gemini-send-btn');
         
         if (!chatContainer || !userInput || !sendBtn) {
-            console.error('聊天功能初始化失败：无法找到必要的DOM元素');
+            console.error('聊天元素未找到');
             return;
         }
         
-        console.log('聊天元素找到，设置事件监听器');
-        
-        // Mean室友初始消息 - 更有个性和多样性
+        // Mean室友初始消息
         const initialResponses = [
             "又是你啊？有事说事，别耽误我时间。",
             "嗯？什么事？我很忙的。",
             "（抬头看你一眼，又低头玩手机）",
-            "哦，是你啊，有话快说。",
-            "怎么又是你？说吧，又有什么事？"
+            "哦，是你啊，有话快说。"
         ];
         
-        const initialMessage = initialResponses[Math.floor(Math.random() * initialResponses.length)];
+        // 聊天历史
+        let chatHistory = [];
         
-        // 确保初始消息显示在聊天容器中
+        // 显示初始消息
         if (chatContainer.children.length === 0) {
-            const initialMessageDiv = document.createElement('div');
-            initialMessageDiv.className = 'message bot-message';
-            initialMessageDiv.textContent = initialMessage;
-            chatContainer.appendChild(initialMessageDiv);
-        }
-        
-        let chatHistory = [
-            {
+            const initialMessage = initialResponses[Math.floor(Math.random() * initialResponses.length)];
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message-container bot-container';
+            
+            // 添加室友头像
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'avatar';
+            const avatarImg = document.createElement('img');
+            avatarImg.src = '../img/mean_avatar.jpeg';
+            avatarImg.alt = '室友头像';
+            avatarDiv.appendChild(avatarImg);
+            
+            // 添加消息气泡
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message bot-message';
+            bubbleDiv.textContent = initialMessage;
+            
+            // 组装
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(bubbleDiv);
+            
+            chatContainer.appendChild(messageDiv);
+            
+            // 添加到历史
+            chatHistory.push({
                 role: "model",
                 content: initialMessage
-            }
-        ];
+            });
+        }
         
         // 发送消息函数
         async function sendMessage() {
@@ -58,21 +74,56 @@
             
             // 显示加载状态
             const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'message bot-message';
-            loadingDiv.innerHTML = '<div class="loading"></div>';
+            loadingDiv.className = 'message-container bot-container';
+            
+            // 添加室友头像（加载状态也添加头像）
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'avatar';
+            const avatarImg = document.createElement('img');
+            avatarImg.src = '../img/mean_avatar.jpeg';
+            avatarImg.alt = '室友头像';
+            avatarDiv.appendChild(avatarImg);
+            
+            // 添加加载气泡
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message bot-message';
+            bubbleDiv.innerHTML = '<div class="loading"></div>';
+            
+            // 组装
+            loadingDiv.appendChild(avatarDiv);
+            loadingDiv.appendChild(bubbleDiv);
+            
             chatContainer.appendChild(loadingDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
             
             try {
-                console.log('发送API请求到/api/chat');
-                // 使用正确的API端点
-                const response = await fetch('https://mean-roommate-api.onrender.com/api/chat', {
+                // 随机决定是否冷暴力不回复 (15%概率)
+                if (Math.random() < 0.15) {
+                    // 移除加载状态
+                    chatContainer.removeChild(loadingDiv);
+                    
+                    // 显示冷暴力回复
+                    const coldResponse = "(无视你，继续刷手机)";
+                    appendMessage(coldResponse, 'bot');
+                    
+                    // 添加到历史
+                    chatHistory.push({
+                        role: "model",
+                        content: coldResponse
+                    });
+                    
+                    return;
+                }
+                
+                // 调用后端API
+                console.log('发送API请求到:', '/api/chat');
+                const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: {
-                      'Content-Type': 'application/json'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ history: chatHistory })
-                  });
+                });
                 
                 // 移除加载状态
                 chatContainer.removeChild(loadingDiv);
@@ -84,7 +135,7 @@
                 const data = await response.json();
                 console.log('收到API响应:', data);
                 
-                // 添加回复到聊天区域
+                // 显示回复
                 appendMessage(data.response, 'bot');
                 
                 // 添加到历史
@@ -101,32 +152,71 @@
                     chatContainer.removeChild(loadingDiv);
                 }
                 
-                // 显示错误消息
-                appendMessage("随便吧，懒得理你。", 'bot');
+                // Mean室友备用回复
+                const meanResponses = [
+                    "管好你自己的事吧，我现在没心情聊天。",
+                    "又来烦我？我很忙的，知道吗？",
+                    "我不想谈这个，你能不能自己解决一次？",
+                    "你总是这样，有完没完啊？",
+                    "随便吧，反正你说了算。"
+                ];
+                
+                const fallbackResponse = meanResponses[Math.floor(Math.random() * meanResponses.length)];
+                
+                // 显示备用回复
+                appendMessage(fallbackResponse, 'bot');
                 
                 // 添加到历史
                 chatHistory.push({
                     role: "model",
-                    content: "随便吧，懒得理你。"
+                    content: fallbackResponse
                 });
             }
         }
         
-        // 添加消息到聊天界面
+        // 添加消息到聊天界面 - 确保每个消息都有头像
         function appendMessage(message, sender) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}-message`;
-            messageDiv.textContent = message;
+            messageDiv.className = `message-container ${sender}-container`;
+            
+            // 创建头像元素
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'avatar';
+            const avatarImg = document.createElement('img');
+            
+            // 设置不同的头像
+            if (sender === 'user') {
+                avatarImg.src = '../img/me_avatar.jpeg';
+                avatarImg.alt = '用户头像';
+            } else {
+                avatarImg.src = '../img/mean_avatar.jpeg';
+                avatarImg.alt = '室友头像';
+            }
+            
+            avatarDiv.appendChild(avatarImg);
+            
+            // 创建消息气泡
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = `message ${sender}-message`;
+            bubbleDiv.textContent = message;
+            
+            // 添加到容器 - 用户消息在右侧，机器人消息在左侧
+            if (sender === 'user') {
+                messageDiv.appendChild(bubbleDiv);
+                messageDiv.appendChild(avatarDiv);
+            } else {
+                messageDiv.appendChild(avatarDiv);
+                messageDiv.appendChild(bubbleDiv);
+            }
+            
             chatContainer.appendChild(messageDiv);
             
             // 滚动到底部
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
         
-        // 确保事件监听器正确绑定
+        // 绑定事件
         sendBtn.addEventListener('click', sendMessage);
-        
-        // 输入框回车事件
         userInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
