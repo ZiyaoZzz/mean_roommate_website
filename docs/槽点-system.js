@@ -800,57 +800,55 @@ document.addEventListener('DOMContentLoaded', function() {
         return finalRoast;
     }
 
-    // 修改AI吐槽生成函数，使用直接的API密钥
+    // 修改AI吐槽生成函数，使其适合服务器API格式
     async function generateAIRoast(events) {
         // 提取所有选择的行为文本
         const behaviorTexts = events.map(event => {
             return `${event.title}: ${event.behaviors.map(b => b.text).join('、')}`;
         }).join('；');
         
-        console.log("准备发送到AI的行为:", behaviorTexts);
+        console.log("准备发送行为到服务器:", behaviorTexts);
         
         try {
-            // 直接使用API密钥 - 这里使用一个固定值，可以替换为实际密钥
-            // 注意：在生产环境中直接在前端代码中包含API密钥存在安全风险
-            const apiKey = "YOUR_GEMINI_API_KEY"; // 替换为你的实际API密钥
-            
-            // 构建API请求
-            const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            // 构造符合服务器期望的聊天历史格式
+            const chatHistory = [
+                {
+                    role: "system",
+                    content: "你是一个能生成幽默吐槽的AI。用户将描述室友的行为，你需要生成一段吐槽。"
                 },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: `根据以下描述的室友行为，生成一段幽默风趣的吐槽（1-3句话）：
+                {
+                    role: "user",
+                    content: `请根据以下室友行为，生成一段幽默风趣的吐槽（4-6句话）：
 ${behaviorTexts}
 
 要求：
 1. 使用生活化、年轻人的语言风格
 2. 融入当下流行的梗和emoji表情
 3. 表达应该带有讽刺但不过分刻薄
-4. 直接写吐槽内容，不要加引号或提示语`
-                        }]
-                    }],
-                    generationConfig: {
-                        temperature: 0.8,
-                        topP: 0.95,
-                        maxOutputTokens: 120
-                    }
+4. 直接输出吐槽内容，不要加引号或提示语`
+                }
+            ];
+            
+            // 调用API
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    history: chatHistory 
                 })
             });
             
-            const data = await response.json();
-            console.log("AI响应:", data);
-            
-            // 提取生成的文本
-            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-                const generatedText = data.candidates[0].content.parts[0].text;
-                return generatedText;
-            } else {
-                throw new Error("返回数据格式不符合预期");
+            if (!response.ok) {
+                throw new Error('API请求失败: ' + response.status);
             }
+            
+            const data = await response.json();
+            console.log('收到API吐槽响应:', data);
+            
+            // 返回生成的吐槽
+            return data.response;
         } catch (error) {
             console.error("生成AI吐槽失败:", error);
             // 如果API调用失败，回退到本地模板
@@ -1094,19 +1092,6 @@ ${behaviorTexts}
                     </div>
                 </div>
                 
-                <div style="text-align: center; margin: 15px 0;">
-                    <button id="refresh-roast-btn" style="
-                        background-color: #f44336;
-                        color: white;
-                        padding: 8px 15px;
-                        border: none;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-size: 14px;
-                        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-                    ">🔄 换一个吐槽</button>
-                </div>
-                
                 <div style="
                     background-color: #f9f9f9;
                     padding: 20px;
@@ -1147,26 +1132,8 @@ ${behaviorTexts}
         
         document.body.appendChild(summaryModal);
         
-        // 添加刷新吐槽功能
-        const refreshRoastBtn = document.getElementById('refresh-roast-btn');
-        if (refreshRoastBtn) {
-            refreshRoastBtn.addEventListener('click', async function() {
-                // 显示加载中提示
-                const roastContainer = this.parentElement.previousElementSibling;
-                const originalRoastText = roastContainer.querySelector('p').innerHTML;
-                roastContainer.querySelector('p').innerHTML = '<span style="display:inline-block;width:20px;height:20px;border:3px solid rgba(0,0,0,.1);border-radius:50%;border-top-color:#f44336;animation:spin 1s infinite linear;margin-right:10px;vertical-align:middle;"></span> 重新生成吐槽中...';
-                
-                // 重新生成吐槽
-                try {
-                    const newRoast = await generateAIRoast(currentSessionScores.events);
-                    roastContainer.querySelector('p').innerHTML = newRoast;
-                } catch (error) {
-                    console.error("刷新吐槽失败:", error);
-                    roastContainer.querySelector('p').innerHTML = originalRoastText;
-                    alert("刷新吐槽失败，请稍后再试");
-                }
-            });
-        }
+        // 修复按钮事件
+        setTimeout(fixRefreshRoastButton, 100);
     }
 
     // 立即执行和页面加载后执行
@@ -1261,4 +1228,35 @@ ${behaviorTexts}
 
     // 在初始化最后添加:
     setTimeout(updateCategoryCounters, 500);
+
+    // 修复刷新吐槽按钮的事件处理程序
+    function fixRefreshRoastButton() {
+        const refreshRoastBtn = document.getElementById('refresh-roast-btn');
+        if (refreshRoastBtn) {
+            refreshRoastBtn.addEventListener('click', async function() {
+                console.log("点击换一个吐槽按钮");
+                
+                // 找到吐槽文本元素 - 更精确定位
+                const roastSection = this.closest('div[style*="background-color: #f9f9f9"]');
+                const roastParagraph = roastSection.querySelector('p');
+                if (!roastParagraph) {
+                    console.error("找不到吐槽文本元素");
+                    return;
+                }
+                
+                const originalRoastText = roastParagraph.innerHTML;
+                roastParagraph.innerHTML = '<span style="display:inline-block;width:20px;height:20px;border:3px solid rgba(0,0,0,.1);border-radius:50%;border-top-color:#f44336;animation:spin 1s infinite linear;margin-right:10px;vertical-align:middle;"></span> 重新生成吐槽中...';
+                
+                try {
+                    // 尝试使用服务器API生成
+                    const newRoast = await generateAIRoast(currentSessionScores.events);
+                    roastParagraph.innerHTML = newRoast;
+                } catch (error) {
+                    console.error("刷新吐槽失败，使用本地生成:", error);
+                    const localRoast = generateLocalRoast(currentSessionScores.events);
+                    roastParagraph.innerHTML = localRoast;
+                }
+            });
+        }
+    }
 });
