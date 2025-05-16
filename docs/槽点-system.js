@@ -1,4 +1,14 @@
 // 槽点回忆系统 - JavaScript
+let savedScores = {
+    lazy: 0,
+    sarcasm: 0,
+    social: 0,
+    events: [], // 存储每次事件的详情
+    categories: {} // 记录每个类别的选择次数
+};
+
+let savedBehaviors = {};
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log("槽点系统初始化中...");
     
@@ -19,7 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const lazyValue = document.getElementById('槽点-lazy-value');
     const sarcasmValue = document.getElementById('槽点-sarcasm-value');
     const socialValue = document.getElementById('槽点-social-value');
-    const emotionItems = document.querySelectorAll('.槽点-emotion-item');
     const behaviorsBack = document.getElementById('槽点-behaviors-back');
     const behaviorsSubmit = document.getElementById('槽点-behaviors-submit');
     
@@ -38,7 +47,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedType = '';
     let selectedTypeTitle = '';
     let selectedBehaviors = [];
-    let emotionRating = 3; // 默认情感评分
     
     // 行为数据库 - 包含不同类型场景的行为选项
     const behaviorData = {
@@ -65,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
             behaviors: [
                 { text: "在你看剧时大声练口哨", scores: { lazy: 0, sarcasm: 2, social: 1 } },
                 { text: "开最响蓝牙音箱放EDM", scores: { lazy: 0, sarcasm: 2, social: 2 } },
-                { text: '深夜隔墙大喊"有鬼！"吓你', scores: { lazy: 0, sarcasm: 3, social: 1 } },
+                { text: "深夜隔墙大喊\"有鬼！\"吓你", scores: { lazy: 0, sarcasm: 3, social: 1 } },
                 { text: "半夜开门脚步声震天", scores: { lazy: 1, sarcasm: 1, social: 1 } },
             ]
         },
@@ -79,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ]
         },
         personal: {
-            title: '私人物品"创新"',
+            title: "私人物品\"创新\"",
             behaviors: [
                 { text: "把袜子当抹布用完不还", scores: { lazy: 2, sarcasm: 1, social: 0 } },
                 { text: "拿你的床单当窗帘挂上", scores: { lazy: 1, sarcasm: 2, social: 0 } },
@@ -99,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
         social: {
             title: "社交／消息轰炸",
             behaviors: [
-                { text: '半夜群里发"表情包大轰炸"', scores: { lazy: 0, sarcasm: 1, social: 3 } },
+                { text: "半夜群里发\"表情包大轰炸\"", scores: { lazy: 0, sarcasm: 1, social: 3 } },
                 { text: "不断给你转发同一个段子不带字幕", scores: { lazy: 1, sarcasm: 1, social: 2 } },
                 { text: "直播斗鱼/抖音时开了麦克风", scores: { lazy: 1, sarcasm: 0, social: 3 } },
                 { text: '给你备注名改成"沙雕室友"群发全员', scores: { lazy: 0, sarcasm: 3, social: 1 } },
@@ -109,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
             title: "游戏／追剧成瘾",
             behaviors: [
                 { text: "占用客厅电视打游戏到凌晨", scores: { lazy: 1, sarcasm: 0, social: 2 } },
-                { text: '边吃泡面边追剧，飘出"泡面味"', scores: { lazy: 2, sarcasm: 0, social: 1 } },
+                { text: "边吃泡面边追剧，飘出\"泡面味\"", scores: { lazy: 2, sarcasm: 0, social: 1 } },
                 { text: "把Chromecast当投影仪用在天花板上", scores: { lazy: 0, sarcasm: 2, social: 1 } },
                 { text: "给你拉游戏组队不带上别的室友", scores: { lazy: 0, sarcasm: 1, social: 2 } },
             ]
@@ -126,9 +134,9 @@ document.addEventListener('DOMContentLoaded', function() {
         emergency: {
             title: "紧急场景",
             behaviors: [
-                { text: '半夜突降"灵异事件"要你陪查房', scores: { lazy: 0, sarcasm: 1, social: 3 } },
-                { text: '突然来个"炉石练习"就不让你睡', scores: { lazy: 0, sarcasm: 2, social: 2 } },
-                { text: '半夜"群殴"电视遥控器打赌', scores: { lazy: 0, sarcasm: 1, social: 3 } },
+                { text: "半夜突降\"灵异事件\"要你陪查房", scores: { lazy: 0, sarcasm: 1, social: 3 } },
+                { text: "突然来个\"炉石练习\"就不让你睡", scores: { lazy: 0, sarcasm: 2, social: 2 } },
+                { text: "半夜\"群殴\"电视遥控器打赌", scores: { lazy: 0, sarcasm: 1, social: 3 } },
                 { text: "定闹钟假装早起催你晨跑", scores: { lazy: 0, sarcasm: 3, social: 1 } },
             ]
         },
@@ -143,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 结果文案库
     const commentTemplates = [
         { condition: score => score.sarcasm > 60, text: '你的室友毒舌满分，已经超标了！建议给TA送本《如何做一个有礼貌的室友》🙄' },
-        { condition: score => score.lazy > 60, text: "这个室友的'懒散指数'爆表了！TA可能把拖延当成了一种生活艺术 🦥" },
+        { condition: score => score.lazy > 60, text: "这个室友的\"懒散指数\"爆表了！TA可能把拖延当成了一种生活艺术 🦥" },
         { condition: score => score.social > 60, text: "社交恐慌症患者慎入！这个室友把宿舍当成24小时派对现场了 🎉" },
         { condition: score => score.sarcasm > 40 && score.lazy > 40, text: "懒又毒舌，这是闲出毛病了吧？建议给TA多布置点任务 📝" },
         { condition: score => score.lazy > 40 && score.social > 40, text: "精力充沛却不做家务，这室友选择性勤奋啊！" },
@@ -183,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 切换到行为选择模态框
             typeModal.classList.add('hidden');
             loadBehaviors(selectedType);
-            behaviorsTitle.textContent = `选择发生的行为 - ${selectedTypeTitle}`;
+            behaviorsTitle.textContent = `选择室友具体表现 - ${selectedTypeTitle}`;
             behaviorsModal.classList.remove('hidden');
             
             // 重置已选择的行为
@@ -198,10 +206,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // 加载行为选项
+    // 当前会话的选择记录，但不保存到localStorage
+    let currentSessionBehaviors = {};
+    let currentSessionScores = {
+        lazy: 0,
+        sarcasm: 0,
+        social: 0,
+        events: [],
+        categories: {}
+    };
+    
+    // 加载行为选项函数，保持当前会话的选择
     function loadBehaviors(type) {
         const behaviors = behaviorData[type].behaviors;
         behaviorsContainer.innerHTML = '';
+        
+        // 重置当前类型的选择行为数组
+        selectedBehaviors = [];
         
         behaviors.forEach((behavior, index) => {
             const behaviorItem = document.createElement('div');
@@ -212,42 +233,113 @@ document.addEventListener('DOMContentLoaded', function() {
             checkbox.id = `behavior-${index}`;
             checkbox.setAttribute('data-index', index);
             
+            // 如果当前会话中已经选择过，保持选中状态
+            if (currentSessionBehaviors[selectedType] && 
+                currentSessionBehaviors[selectedType].some(b => b.text === behavior.text)) {
+                
+                checkbox.checked = true;
+                
+                // 找到已保存的行为及其情绪值
+                const savedBehavior = currentSessionBehaviors[selectedType].find(b => b.text === behavior.text);
+                const behaviorWithEmotion = {...behavior, emotion: savedBehavior.emotion || 3};
+                selectedBehaviors.push(behaviorWithEmotion);
+            }
+            
             const label = document.createElement('label');
             label.setAttribute('for', `behavior-${index}`);
             label.textContent = behavior.text;
             
-            const scores = document.createElement('span');
-            scores.className = '槽点-behavior-scores';
-            scores.textContent = `懒:${behavior.scores.lazy} 讽:${behavior.scores.sarcasm} 社:${behavior.scores.social}`;
+            // 修改情绪评级部分，添加emoji
+            const emotionRating = document.createElement('div');
+            emotionRating.className = '槽点-behavior-emotion';
+            emotionRating.innerHTML = `
+                <span>生气程度:</span>
+                <div class="槽点-behavior-rating">
+                    <span class="槽点-emotion-item" data-value="1" data-index="${index}">😔<br>1</span>
+                    <span class="槽点-emotion-item" data-value="2" data-index="${index}">😢<br>2</span>
+                    <span class="槽点-emotion-item" data-value="3" data-index="${index}">😠<br>3</span>
+                    <span class="槽点-emotion-item" data-value="4" data-index="${index}">😡<br>4</span>
+                    <span class="槽点-emotion-item" data-value="5" data-index="${index}">💥<br>5</span>
+                </div>
+            `;
+            
+            // 如果有已保存的情绪值，显示选中状态
+            if (currentSessionBehaviors[selectedType]) {
+                const savedBehavior = currentSessionBehaviors[selectedType].find(b => b.text === behavior.text);
+                if (savedBehavior && savedBehavior.emotion) {
+                    const emotionToSelect = emotionRating.querySelector(`.槽点-emotion-item[data-value="${savedBehavior.emotion}"][data-index="${index}"]`);
+                    if (emotionToSelect) {
+                        emotionToSelect.classList.add('selected');
+                    }
+                }
+            }
             
             behaviorItem.appendChild(checkbox);
             behaviorItem.appendChild(label);
-            behaviorItem.appendChild(scores);
+            behaviorItem.appendChild(emotionRating);
             behaviorsContainer.appendChild(behaviorItem);
             
-            // 添加复选框事件
+            // 情绪评分添加事件
+            const emotionItems = emotionRating.querySelectorAll('.槽点-emotion-item');
+            emotionItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const behaviorIndex = parseInt(this.getAttribute('data-index'));
+                    const emotionValue = parseInt(this.getAttribute('data-value'));
+                    const isCurrentlySelected = this.classList.contains('selected');
+                    
+                    // 移除同一行为所有情绪选项的选中状态
+                    emotionItems.forEach(i => {
+                        if (i.getAttribute('data-index') === this.getAttribute('data-index')) {
+                            i.classList.remove('selected');
+                        }
+                    });
+                    
+                    // 如果点击的是当前已选中的，则完全取消选择
+                    if (isCurrentlySelected) {
+                        // 不添加selected类，实现取消选择
+                        
+                        // 更新选中行为的情绪值为空或默认值
+                        selectedBehaviors.forEach(b => {
+                            if (b.text === behaviors[behaviorIndex].text) {
+                                b.emotion = null;
+                            }
+                        });
+                    } else {
+                        // 添加当前选中状态
+                        this.classList.add('selected');
+                        
+                        // 自动勾选该行为
+                        const checkbox = document.getElementById(`behavior-${behaviorIndex}`);
+                        if (!checkbox.checked) {
+                            checkbox.checked = true;
+                            // 手动添加行为到selectedBehaviors
+                            const behaviorWithEmotion = {...behaviors[behaviorIndex], emotion: emotionValue};
+                            selectedBehaviors.push(behaviorWithEmotion);
+                        } else {
+                            // 更新已选中行为的情绪值
+                            selectedBehaviors.forEach(b => {
+                                if (b.text === behaviors[behaviorIndex].text) {
+                                    b.emotion = emotionValue;
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+            
+            // 复选框事件
             checkbox.addEventListener('change', function() {
                 const index = parseInt(this.getAttribute('data-index'));
                 if (this.checked) {
-                    selectedBehaviors.push(behaviors[index]);
+                    // 添加行为并设置默认情绪值为3
+                    const behaviorWithEmotion = {...behaviors[index], emotion: 3};
+                    selectedBehaviors.push(behaviorWithEmotion);
                 } else {
-                    selectedBehaviors = selectedBehaviors.filter(b => b !== behaviors[index]);
+                    selectedBehaviors = selectedBehaviors.filter(b => b.text !== behaviors[index].text);
                 }
             });
         });
     }
-    
-    // 事件监听 - 情感评分选择
-    emotionItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // 移除所有选中状态
-            emotionItems.forEach(i => i.classList.remove('selected'));
-            // 添加当前选中状态
-            this.classList.add('selected');
-            // 更新评分
-            emotionRating = parseInt(this.getAttribute('data-value'));
-        });
-    });
     
     // 事件监听 - 滑块值更新
     lazySlider.addEventListener('input', function() {
@@ -266,21 +358,32 @@ document.addEventListener('DOMContentLoaded', function() {
     behaviorsBack.addEventListener('click', function() {
         behaviorsModal.classList.add('hidden');
         typeModal.classList.remove('hidden');
+        updateCategoryCounters();
     });
     
     // 事件监听 - 提交结果计算
     behaviorsSubmit.addEventListener('click', function() {
-        if (selectedBehaviors.length === 0 && selectedType !== 'other') {
-            alert('请至少选择一个行为！');
-            return;
-        }
+        console.log("selectedBehaviors:", selectedBehaviors);
         
-        // 计算结果
-        calculateResults();
+        // 检查是否有未设置情绪值的行为并设置默认值3
+        selectedBehaviors.forEach(behavior => {
+            if (!behavior.emotion) {
+                behavior.emotion = 3;
+            }
+        });
         
-        // 隐藏行为选择，显示结果
+        // 计算本次结果并保存
+        saveCurrentResults();
+        
+        // 显示一个简短提示
+        showSavedConfirmation();
+        
+        // 更新类别计数
+        updateCategoryCounters();
+        
+        // 直接返回到类型选择页面
         behaviorsModal.classList.add('hidden');
-        resultModal.classList.remove('hidden');
+        typeModal.classList.remove('hidden');
     });
     
     // 事件监听 - 再来一次
@@ -289,12 +392,30 @@ document.addEventListener('DOMContentLoaded', function() {
         typeModal.classList.remove('hidden');
     });
     
-    // 计算结果
-    function calculateResults() {
+    // 修改保存结果函数，确保所有已选项都被保存
+    function saveCurrentResults() {
         // 初始化分数
         let totalLazy = 0;
         let totalSarcasm = 0;
         let totalSocial = 0;
+        
+        // 如果该类型不存在于currentSessionBehaviors中，初始化为空数组
+        if (!currentSessionBehaviors[selectedType]) {
+            currentSessionBehaviors[selectedType] = [];
+        }
+        
+        // 获取当前页面上所有的行为项
+        const checkboxes = behaviorsContainer.querySelectorAll('input[type="checkbox"]');
+        const allBehaviors = Array.from(checkboxes).map(checkbox => {
+            const index = parseInt(checkbox.getAttribute('data-index'));
+            if (selectedType === 'other') {
+                return null; // 自定义类型单独处理
+            }
+            return {
+                checkbox: checkbox,
+                data: behaviorData[selectedType].behaviors[index]
+            };
+        }).filter(item => item !== null);
         
         // 累加所有选中行为的分数
         if (selectedType === 'other') {
@@ -302,61 +423,842 @@ document.addEventListener('DOMContentLoaded', function() {
             totalLazy = parseInt(lazySlider.value);
             totalSarcasm = parseInt(sarcasmSlider.value);
             totalSocial = parseInt(socialSlider.value);
+            
+            // 记录自定义行为
+            const customBehavior = {
+                text: customText.value || "自定义行为",
+                scores: {
+                    lazy: totalLazy,
+                    sarcasm: totalSarcasm,
+                    social: totalSocial
+                },
+                emotion: 3
+            };
+            
+            // 更新而不是替换
+            if (!currentSessionBehaviors[selectedType].some(b => b.text === customBehavior.text)) {
+                currentSessionBehaviors[selectedType].push(customBehavior);
+            }
         } else {
-            // 累加选中行为的分数
+            // 首先从页面获取当前选中的行为
+            // 这确保即使用户没有进行任何修改，也能捕获所有已选中的项目
+            const currentSelectedBehaviors = [];
+            allBehaviors.forEach(item => {
+                if (item.checkbox.checked) {
+                    // 查找该行为的情绪值
+                    const behaviorIndex = parseInt(item.checkbox.getAttribute('data-index'));
+                    const emotionItem = behaviorsContainer.querySelector(`.槽点-emotion-item.selected[data-index="${behaviorIndex}"]`);
+                    const emotionValue = emotionItem ? parseInt(emotionItem.getAttribute('data-value')) : 3;
+                    
+                    currentSelectedBehaviors.push({
+                        ...item.data,
+                        emotion: emotionValue
+                    });
+                }
+            });
+            
+            // 确保selectedBehaviors包含当前页面上所有选中的行为
+            // 这解决了"只浏览但不修改"的情况
+            selectedBehaviors = currentSelectedBehaviors;
+            
+            // 计算分数并更新保存状态
             selectedBehaviors.forEach(behavior => {
-                totalLazy += behavior.scores.lazy;
-                totalSarcasm += behavior.scores.sarcasm;
-                totalSocial += behavior.scores.social;
+                // 使用行为特定的情绪值计算分数
+                const emotionFactor = behavior.emotion / 3;
+                
+                totalLazy += behavior.scores.lazy * emotionFactor;
+                totalSarcasm += behavior.scores.sarcasm * emotionFactor;
+                totalSocial += behavior.scores.social * emotionFactor;
+                
+                // 更新currentSessionBehaviors
+                const existingIndex = currentSessionBehaviors[selectedType].findIndex(b => b.text === behavior.text);
+                if (existingIndex >= 0) {
+                    // 更新已有行为
+                    currentSessionBehaviors[selectedType][existingIndex] = behavior;
+                } else {
+                    // 添加新行为
+                    currentSessionBehaviors[selectedType].push(behavior);
+                }
+            });
+            
+            // 删除未选中的行为
+            currentSessionBehaviors[selectedType] = currentSessionBehaviors[selectedType].filter(b => 
+                selectedBehaviors.some(sb => sb.text === b.text)
+            );
+        }
+        
+        // 记录本次事件到当前会话
+        // 只有在有选择的情况下才记录
+        if (selectedBehaviors.length > 0 || selectedType === 'other') {
+            currentSessionScores.events.push({
+                type: selectedType,
+                title: selectedTypeTitle,
+                behaviors: selectedBehaviors,
+                scores: {
+                    lazy: totalLazy,
+                    sarcasm: totalSarcasm, 
+                    social: totalSocial
+                },
+                timestamp: new Date().toLocaleString()
             });
         }
         
-        // 应用情感权重
-        const emotionFactor = emotionRating / 3; // 将1-5的情感评分转换为权重因子
-        totalLazy *= emotionFactor;
-        totalSarcasm *= emotionFactor;
-        totalSocial *= emotionFactor;
+        // 更新当前会话累计分数
+        currentSessionScores.lazy += totalLazy;
+        currentSessionScores.sarcasm += totalSarcasm;
+        currentSessionScores.social += totalSocial;
         
-        // 归一化为百分比
-        const total = totalLazy + totalSarcasm + totalSocial;
-        const percentages = {
-            lazy: total === 0 ? 0 : Math.round((totalLazy / total) * 100),
-            sarcasm: total === 0 ? 0 : Math.round((totalSarcasm / total) * 100),
-            social: total === 0 ? 0 : Math.round((totalSocial / total) * 100)
-        };
-        
-        // 处理总和不为100的情况
-        const sum = percentages.lazy + percentages.sarcasm + percentages.social;
-        if (sum !== 100 && sum !== 0) {
-            const diff = 100 - sum;
-            const maxKey = Object.keys(percentages).reduce((a, b) => percentages[a] > percentages[b] ? a : b);
-            percentages[maxKey] += diff;
+        // 记录类别选择次数
+        if (!currentSessionScores.categories[selectedType]) {
+            currentSessionScores.categories[selectedType] = 1;
+        } else {
+            currentSessionScores.categories[selectedType]++;
         }
-        
-        // 更新UI
-        updateResultDisplay(percentages);
     }
 
-    // 更新结果显示
-    function updateResultDisplay(percentages) {
-        // 设置标题
-        resultTitle.textContent = `本次槽点: "${selectedTypeTitle}"`;
+    // 显示保存确认提示
+    function showSavedConfirmation() {
+        const confirmationDiv = document.createElement('div');
+        confirmationDiv.className = '槽点-saved-confirmation';
+        confirmationDiv.innerHTML = `
+            <div class="槽点-confirmation-content">
+                <div class="槽点-confirmation-icon">✓</div>
+                <div class="槽点-confirmation-text">
+                    <p>已保存槽点事件</p>
+                    <p class="槽点-confirmation-count">已累积 ${currentSessionScores.events.length} 个槽点</p>
+                </div>
+            </div>
+        `;
         
-        // 更新百分比条
-        lazyBar.style.width = `${percentages.lazy}%`;
-        sarcasmBar.style.width = `${percentages.sarcasm}%`;
-        socialBar.style.width = `${percentages.social}%`;
+        document.body.appendChild(confirmationDiv);
         
-        lazyPercent.textContent = `${percentages.lazy}%`;
-        sarcasmPercent.textContent = `${percentages.sarcasm}%`;
-        socialPercent.textContent = `${percentages.social}%`;
-        
-        // 生成评论文案
-        for (const template of commentTemplates) {
-            if (template.condition(percentages)) {
-                resultComment.textContent = template.text;
-                break;
-            }
+        // 2秒后淡出
+        setTimeout(() => {
+            confirmationDiv.classList.add('fade-out');
+            setTimeout(() => {
+                document.body.removeChild(confirmationDiv);
+            }, 500);
+        }, 1500);
+    }
+
+    // 修改标题文字
+    // 将"选择发生的行为 - XXX"改为"选择室友具体表现 - XXX"
+    function updateBehaviorsTitle() {
+        behaviorsTitle.textContent = `选择室友具体表现 - ${selectedTypeTitle}`;
+    }
+
+    // 修改"计算结果"按钮文本和功能
+    // 在初始化函数中添加
+    function updateButtonsText() {
+        const submitBtn = document.getElementById('槽点-behaviors-submit');
+        if (submitBtn) {
+            submitBtn.textContent = '保存并继续';
         }
     }
+
+    // 初始化时加载数据并设置按钮
+    updateButtonsText();
+
+    // 在CSS中添加样式使emoji更突出
+    const emojiStyle = document.createElement('style');
+    emojiStyle.textContent = `
+        .槽点-emotion-item {
+            display: inline-block;
+            text-align: center;
+            cursor: pointer;
+            margin: 0 5px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .槽点-emotion-item.selected {
+            background-color: #e0e7ff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        
+        .槽点-emotion-item emoji {
+            font-size: 1.5em;
+            display: block;
+            margin-bottom: 2px;
+        }
+    `;
+    document.head.appendChild(emojiStyle);
+
+    // 在CSS中隐藏相关元素
+    const hideEmotionStyle = document.createElement('style');
+    hideEmotionStyle.textContent = `
+        .emotion-global-rating, 
+        .当时被坑程度,
+        #emotion-rating-container {
+            display: none !important;
+        }
+    `;
+    document.head.appendChild(hideEmotionStyle);
+
+    // 恢复完整的槽点总结功能
+
+    // 行为模式分析函数
+    function generateRoommatePattern(percentages) {
+        const maxType = Object.keys(percentages).reduce((a, b) => percentages[a] > percentages[b] ? a : b);
+        
+        const patterns = {
+            lazy: {
+                title: "消极懒散型",
+                description: "你的室友是典型的「消极懒散型」。懒惰是TA的主要特征，经常逃避责任，推迟任务，对公共区域维护漠不关心。TA可能会晚起床，忘记做分配的家务，并且经常找借口拖延应该完成的事情。"
+            },
+            sarcasm: {
+                title: "尖酸刻薄型",
+                description: "你的室友是典型的「尖酸刻薄型」。TA喜欢用刻薄的言语和态度来应对生活中的各种情况，经常让人感到不舒服。TA可能会对你的行为进行批评，发表尖锐评论，或者用讽刺的方式表达不满，而不是直接沟通问题。"
+            },
+            social: {
+                title: "过度社交型",
+                description: "你的室友是典型的「过度社交型」。TA的社交需求很高，可能会不考虑你的个人空间和安静需求。这表现为频繁邀请朋友到宿舍，在公共区域大声交谈或播放音乐，或者在你想要独处时打扰你。"
+            }
+        };
+        
+        // 检查是否有明显的混合型
+        if (percentages.lazy >= 30 && percentages.sarcasm >= 30) {
+            return {
+                title: "懒散刻薄混合型",
+                description: "你的室友展现出「懒散刻薄混合型」的特征，既不愿承担责任，又喜欢用刻薄言语掩饰自己的懒惰。TA不仅会推脱任务，还会用尖酸的评论让人感到不舒服，这种组合尤其令人头疼，因为TA既不做事，还会对别人的努力进行贬低。"
+            };
+        }
+        
+        if (percentages.lazy >= 30 && percentages.social >= 30) {
+            return {
+                title: "选择性精力型",
+                description: "你的室友展现出「选择性精力型」的特征。TA对社交活动充满热情和精力，却对家务和责任表现得极为懒散。TA可能会为了组织派对花费大量精力，却懒得洗碗或打扫卫生，这种行为模式表明TA只会将精力用在自己感兴趣的活动上。"
+            };
+        }
+        
+        if (percentages.sarcasm >= 30 && percentages.social >= 30) {
+            return {
+                title: "戏剧社交型",
+                description: "你的室友展现出「戏剧社交型」的特征。TA既有强烈的社交需求，又喜欢用刻薄或讽刺的方式表达自己。这种组合使TA成为社交场合的中心，但也可能让周围的人感到不舒服，因为TA的幽默常带有尖锐的边缘，让人难以分辨是玩笑还是批评。"
+            };
+        }
+        
+        return patterns[maxType] || { title: "未知类型", description: "无法分析行为模式。" };
+    }
+
+    // 生成应对策略函数
+    function generateStrategies(percentages) {
+        const strategies = [];
+        
+        if (percentages.lazy > 30) {
+            strategies.push("建立明确的家务分配表，并拍照保存作为证据");
+            strategies.push("设置具体的截止日期和后果，避免拖延");
+            strategies.push("为食物和个人物品使用标签或单独的存储空间");
+        }
+        
+        if (percentages.sarcasm > 30) {
+            strategies.push("保持冷静，避免情绪化回应，这可能会进一步激化情况");
+            strategies.push("使用\"我感受\"句式进行沟通，如\"当你说...时，我感到...\"");
+            strategies.push("记录所有重要的对话和协议，避免后续争议");
+        }
+        
+        if (percentages.social > 30) {
+            strategies.push("建立明确的\"安静时间\"规则，用于学习或休息");
+            strategies.push("投资高质量的降噪耳机，创建个人安静空间");
+            strategies.push("提前沟通你的时间表和需求，尤其是重要事件前");
+        }
+        
+        // 添加通用策略
+        strategies.push("保持定期的室友会议，讨论问题并寻找解决方案");
+        strategies.push("学习设定健康的界限，坚定而尊重地表达你的需求");
+        
+        return strategies;
+    }
+
+    // 添加"查看本次总结"按钮
+    function addSummaryButton() {
+        const typeModal = document.getElementById('槽点-type-modal');
+        if (!typeModal) return;
+        
+        // 创建一个独立的容器用于中间按钮
+        const summaryContainer = document.createElement('div');
+        summaryContainer.style.cssText = `
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        `;
+        
+        // 检查按钮是否已存在
+        let viewSummaryBtn = document.getElementById('view-summary-btn');
+        if (!viewSummaryBtn) {
+            viewSummaryBtn = document.createElement('button');
+            viewSummaryBtn.id = 'view-summary-btn';
+            viewSummaryBtn.className = 'view-summary-btn';
+            viewSummaryBtn.textContent = '查看本次总结';
+            viewSummaryBtn.style.cssText = `
+                background-color: #4caf50;
+                color: white;
+                padding: 12px 30px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 18px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                transition: all 0.3s;
+            `;
+            
+            viewSummaryBtn.addEventListener('mouseover', function() {
+                this.style.backgroundColor = '#45a049';
+                this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+            });
+            
+            viewSummaryBtn.addEventListener('mouseout', function() {
+                this.style.backgroundColor = '#4caf50';
+                this.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+            });
+            
+            viewSummaryBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                console.log("总结按钮被点击");
+                showCurrentSummary();
+            });
+            
+            summaryContainer.appendChild(viewSummaryBtn);
+            
+            // 将总结按钮添加到模态框底部
+            const modalContent = typeModal.querySelector('.槽点-modal-content');
+            modalContent.appendChild(summaryContainer);
+        }
+    }
+
+    // 添加本地吐槽生成函数，不依赖服务器
+    function generateLocalRoast(events) {
+        // 提取所有选择的行为类型
+        const categories = events.map(event => event.title);
+        const behaviorTexts = events.map(event => 
+            event.behaviors.map(b => b.text)
+        ).flat();
+        
+        console.log("生成本地吐槽，行为:", behaviorTexts);
+        
+        // 吐槽模板库
+        const roastTemplates = [
+            "你这室友是集💤懒散、🔥作妖和🤡社恐于一身的完美典范啊！",
+            "你室友这操作我直呼内行，简直是让人抓狂的艺术家～🎨",
+            "这哪是室友啊，简直是祖传生活整蛊大师🧙‍♂️，建议申请专利！",
+            "我不是专家，但你室友这些行为已经可以评为年度槽点王了👑",
+            "你室友这是把\"麻烦制造机\"玩出了新高度，堪称行业标杆💯",
+            "你室友是不是把\"如何气死室友100种方法\"当成了人生指南？🤔",
+            "这些行为简直是教科书级别的\"如何快速失去室友\"案例！📚",
+            "你室友这些骚操作，我愿称之为年度最佳室友灾难片男/女主角！🏆",
+            "你的忍耐力已经达到了奥运冠军水平，建议申请吉尼斯纪录！🥇",
+            "看完这些我只想说：你室友是来自异次元的生物吧？👽"
+        ];
+        
+        // 行为特定的吐槽
+        const behaviorSpecificRoasts = {
+            "半夜潜行动作": "你室友这半夜鬼鬼祟祟的行动力，用在学习上早就考上哈佛了！🌙👻",
+            "厨卫尴尬现场": "你室友是把厨卫当成了实验室吗？这些\"创新发明\"可以申请专利了！🚿🧪",
+            "声光轰炸": "你室友是不是以为租了整栋楼？这音量和灯光秀堪比演唱会啊！🔊💡",
+            "食物失踪记": "你室友这个食物处理能力，比《十宗罪》还离谱，FBI可以来取经了！🍔🕵️",
+            "私人物品创新": "你室友对你物品的\"创意再利用\"，简直是垃圾分类大师和环保先锋啊！♻️👑",
+            "快递/收纳灾难": "你室友的收纳哲学大概是\"混沌即艺术\"吧？这乱放技术已经达到了艺术境界！📦🎨",
+            "社交/消息轰炸": "你室友是把社交软件当成了氧气泵吗？这消息频率简直是在刷KPI！📱💬",
+            "游戏/追剧成瘾": "你室友不是在打游戏就是在追剧的路上，这专注度用在工作上早就升CEO了！🎮📺",
+            "门禁/安全失误": "你室友对门锁的创新使用方式，连专业锁匠都得自愧不如！🔐👨‍🔧",
+            "紧急场景": "你室友制造的这些\"紧急情况\"，简直比好莱坞灾难片编剧还有想象力！🚨🎬"
+        };
+        
+        // 根据行为选择合适的吐槽
+        let finalRoast = "";
+
+        // 如果只有一个类别，使用该类别的专属吐槽
+        if (categories.length === 1 && behaviorSpecificRoasts[categories[0]]) {
+            finalRoast = behaviorSpecificRoasts[categories[0]];
+        } 
+        // 如果有多个类别，组合通用吐槽和随机特定吐槽
+        else if (categories.length > 1) {
+            // 选择一个随机的通用模板
+            const baseRoast = roastTemplates[Math.floor(Math.random() * roastTemplates.length)];
+            
+            // 选择一个随机的行为特定吐槽（如果有）
+            const availableSpecificRoasts = categories
+                .filter(cat => behaviorSpecificRoasts[cat])
+                .map(cat => behaviorSpecificRoasts[cat]);
+            
+            if (availableSpecificRoasts.length > 0) {
+                const specificRoast = availableSpecificRoasts[Math.floor(Math.random() * availableSpecificRoasts.length)];
+                finalRoast = baseRoast + " " + specificRoast;
+            } else {
+                finalRoast = baseRoast;
+            }
+        }
+        // 如果选项很少，使用默认吐槽
+        else {
+            finalRoast = roastTemplates[Math.floor(Math.random() * roastTemplates.length)];
+        }
+        
+        return finalRoast;
+    }
+
+    // 修改AI吐槽生成函数，使用直接的API密钥
+    async function generateAIRoast(events) {
+        // 提取所有选择的行为文本
+        const behaviorTexts = events.map(event => {
+            return `${event.title}: ${event.behaviors.map(b => b.text).join('、')}`;
+        }).join('；');
+        
+        console.log("准备发送到AI的行为:", behaviorTexts);
+        
+        try {
+            // 直接使用API密钥 - 这里使用一个固定值，可以替换为实际密钥
+            // 注意：在生产环境中直接在前端代码中包含API密钥存在安全风险
+            const apiKey = "YOUR_GEMINI_API_KEY"; // 替换为你的实际API密钥
+            
+            // 构建API请求
+            const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: `根据以下描述的室友行为，生成一段幽默风趣的吐槽（1-3句话）：
+${behaviorTexts}
+
+要求：
+1. 使用生活化、年轻人的语言风格
+2. 融入当下流行的梗和emoji表情
+3. 表达应该带有讽刺但不过分刻薄
+4. 直接写吐槽内容，不要加引号或提示语`
+                        }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.8,
+                        topP: 0.95,
+                        maxOutputTokens: 120
+                    }
+                })
+            });
+            
+            const data = await response.json();
+            console.log("AI响应:", data);
+            
+            // 提取生成的文本
+            if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                const generatedText = data.candidates[0].content.parts[0].text;
+                return generatedText;
+            } else {
+                throw new Error("返回数据格式不符合预期");
+            }
+        } catch (error) {
+            console.error("生成AI吐槽失败:", error);
+            // 如果API调用失败，回退到本地模板
+            return generateLocalRoast(events);
+        }
+    }
+
+    // 修改showCurrentSummary函数，添加使用AI生成吐槽的选项
+    async function showCurrentSummary() {
+        console.log("显示总结...");
+        
+        // 如果没有currentSessionScores，创建一个模拟数据
+        if (typeof currentSessionScores === 'undefined' || !currentSessionScores.events || currentSessionScores.events.length === 0) {
+            currentSessionScores = {
+                lazy: Math.random() * 10,
+                sarcasm: Math.random() * 10,
+                social: Math.random() * 10,
+                events: [{ 
+                    type: 'night', 
+                    title: '半夜潜行动作',
+                    behaviors: [{ text: "半夜进房搬走你的充电线" }] 
+                }],
+                categories: { night: 1 }
+            };
+        }
+        
+        // 显示加载中的提示
+        const loadingModal = document.createElement('div');
+        loadingModal.className = '槽点-modal';
+        loadingModal.id = '槽点-loading-modal';
+        loadingModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+        
+        loadingModal.innerHTML = `
+            <div style="
+                background-color: white;
+                padding: 30px;
+                border-radius: 8px;
+                text-align: center;
+            ">
+                <div class="loading" style="
+                    display: inline-block;
+                    width: 30px;
+                    height: 30px;
+                    border: 3px solid rgba(0,0,0,.1);
+                    border-radius: 50%;
+                    border-top-color: #4caf50;
+                    animation: spin 1s infinite linear;
+                    margin-bottom: 15px;
+                "></div>
+                <p>AI正在生成专业吐槽...</p>
+            </div>
+        `;
+        
+        document.body.appendChild(loadingModal);
+        
+        // 隐藏类型模态框
+        const typeModal = document.getElementById('槽点-type-modal');
+        if (typeModal) {
+            typeModal.classList.add('hidden');
+        }
+        
+        // 计算总百分比
+        const totalSum = currentSessionScores.lazy + currentSessionScores.sarcasm + currentSessionScores.social;
+        
+        // 避免除以零
+        let totalPercentages = {
+            lazy: 33,
+            sarcasm: 33,
+            social: 34
+        };
+        
+        if (totalSum > 0) {
+            totalPercentages = {
+                lazy: Math.round((currentSessionScores.lazy / totalSum) * 100),
+                sarcasm: Math.round((currentSessionScores.sarcasm / totalSum) * 100),
+                social: Math.round((currentSessionScores.social / totalSum) * 100)
+            };
+            
+            // 修正百分比总和为100%
+            const sum = totalPercentages.lazy + totalPercentages.sarcasm + totalPercentages.social;
+            if (sum !== 100) {
+                // 找到最大值调整
+                const maxKey = Object.keys(totalPercentages).reduce((a, b) => 
+                    totalPercentages[a] > totalPercentages[b] ? a : b
+                );
+                totalPercentages[maxKey] += (100 - sum);
+            }
+        }
+        
+        // 生成室友行为模式分析和策略
+        const behaviorPattern = generateRoommatePattern(totalPercentages);
+        const strategies = generateStrategies(totalPercentages);
+        
+        // 尝试使用AI生成吐槽内容
+        let aiRoast;
+        try {
+            aiRoast = await generateAIRoast(currentSessionScores.events);
+        } catch (error) {
+            console.error("AI吐槽生成失败，使用本地模板:", error);
+            aiRoast = generateLocalRoast(currentSessionScores.events);
+        }
+        
+        // 移除加载提示
+        document.body.removeChild(loadingModal);
+        
+        // 创建总结模态框
+        const summaryModal = document.createElement('div');
+        summaryModal.className = '槽点-modal';
+        summaryModal.id = '槽点-summary-modal';
+        summaryModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+        
+        summaryModal.innerHTML = `
+            <div class="槽点-modal-content" style="
+                background-color: white;
+                padding: 30px;
+                border-radius: 8px;
+                max-width: 700px;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            ">
+                <h2 style="margin-top: 0; color: #333; text-align: center;">室友行为分析</h2>
+                
+                <div style="
+                    background-color: #f9f9f9;
+                    padding: 20px;
+                    border-radius: 8px;
+                    margin: 20px 0;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                ">
+                    <h3 style="margin-top: 0; color: #f44336;">AI扎心吐槽</h3>
+                    <p style="line-height: 1.6; font-style: italic; background-color: #fff8f8; padding: 15px; border-left: 5px solid #f44336; border-radius: 0 8px 8px 0; font-size: 1.1em;">${aiRoast}</p>
+                </div>
+                
+                <div style="
+                    background-color: #f9f9f9;
+                    padding: 20px;
+                    border-radius: 8px;
+                    margin: 20px 0;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                ">
+                    <h3 style="margin-top: 0; color: #4caf50;">行为评分</h3>
+                    
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <span style="width: 80px; font-weight: bold;">懒散度:</span>
+                            <div style="
+                                flex-grow: 1;
+                                height: 20px;
+                                background-color: #f0f0f0;
+                                border-radius: 10px;
+                                overflow: hidden;
+                                position: relative;
+                            ">
+                                <div style="
+                                    width: ${totalPercentages.lazy}%;
+                                    height: 100%;
+                                    background-color: #ff9800;
+                                    border-radius: 10px;
+                                "></div>
+                                <span style="
+                                    position: absolute;
+                                    right: 10px;
+                                    top: 0;
+                                    font-weight: bold;
+                                ">${totalPercentages.lazy}%</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <span style="width: 80px; font-weight: bold;">毒舌度:</span>
+                            <div style="
+                                flex-grow: 1;
+                                height: 20px;
+                                background-color: #f0f0f0;
+                                border-radius: 10px;
+                                overflow: hidden;
+                                position: relative;
+                            ">
+                                <div style="
+                                    width: ${totalPercentages.sarcasm}%;
+                                    height: 100%;
+                                    background-color: #f44336;
+                                    border-radius: 10px;
+                                "></div>
+                                <span style="
+                                    position: absolute;
+                                    right: 10px;
+                                    top: 0;
+                                    font-weight: bold;
+                                ">${totalPercentages.sarcasm}%</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center;">
+                            <span style="width: 80px; font-weight: bold;">社交度:</span>
+                            <div style="
+                                flex-grow: 1;
+                                height: 20px;
+                                background-color: #f0f0f0;
+                                border-radius: 10px;
+                                overflow: hidden;
+                                position: relative;
+                            ">
+                                <div style="
+                                    width: ${totalPercentages.social}%;
+                                    height: 100%;
+                                    background-color: #2196f3;
+                                    border-radius: 10px;
+                                "></div>
+                                <span style="
+                                    position: absolute;
+                                    right: 10px;
+                                    top: 0;
+                                    font-weight: bold;
+                                ">${totalPercentages.social}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin: 15px 0;">
+                    <button id="refresh-roast-btn" style="
+                        background-color: #f44336;
+                        color: white;
+                        padding: 8px 15px;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                    ">🔄 换一个吐槽</button>
+                </div>
+                
+                <div style="
+                    background-color: #f9f9f9;
+                    padding: 20px;
+                    border-radius: 8px;
+                    margin: 20px 0;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                ">
+                    <h3 style="margin-top: 0; color: #2196f3;">行为模式: ${behaviorPattern.title}</h3>
+                    <p style="line-height: 1.5;">${behaviorPattern.description}</p>
+                </div>
+                
+                <div style="
+                    background-color: #f9f9f9;
+                    padding: 20px;
+                    border-radius: 8px;
+                    margin: 20px 0;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                ">
+                    <h3 style="margin-top: 0; color: #ff9800;">应对策略</h3>
+                    <ul style="line-height: 1.5;">
+                        ${strategies.map(s => `<li>${s}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <p style="text-align: center; color: #666; font-style: italic;">点击空白区域关闭</p>
+            </div>
+        `;
+        
+        // 添加点击关闭功能
+        summaryModal.addEventListener('click', function(event) {
+            if (event.target === summaryModal) {
+                document.body.removeChild(summaryModal);
+                if (typeModal) {
+                    typeModal.classList.remove('hidden');
+                }
+            }
+        });
+        
+        document.body.appendChild(summaryModal);
+        
+        // 添加刷新吐槽功能
+        const refreshRoastBtn = document.getElementById('refresh-roast-btn');
+        if (refreshRoastBtn) {
+            refreshRoastBtn.addEventListener('click', async function() {
+                // 显示加载中提示
+                const roastContainer = this.parentElement.previousElementSibling;
+                const originalRoastText = roastContainer.querySelector('p').innerHTML;
+                roastContainer.querySelector('p').innerHTML = '<span style="display:inline-block;width:20px;height:20px;border:3px solid rgba(0,0,0,.1);border-radius:50%;border-top-color:#f44336;animation:spin 1s infinite linear;margin-right:10px;vertical-align:middle;"></span> 重新生成吐槽中...';
+                
+                // 重新生成吐槽
+                try {
+                    const newRoast = await generateAIRoast(currentSessionScores.events);
+                    roastContainer.querySelector('p').innerHTML = newRoast;
+                } catch (error) {
+                    console.error("刷新吐槽失败:", error);
+                    roastContainer.querySelector('p').innerHTML = originalRoastText;
+                    alert("刷新吐槽失败，请稍后再试");
+                }
+            });
+        }
+    }
+
+    // 立即执行和页面加载后执行
+    function initializeSummaryButton() {
+        console.log("初始化总结按钮...");
+        addSummaryButton();
+    }
+
+    // 立即执行
+    setTimeout(initializeSummaryButton, 500);
+
+    // 页面加载后执行
+    setTimeout(initializeSummaryButton, 1000);
+
+    // 修改更新类别计数器函数，使其基于已选择的行为项
+    function updateCategoryCounters() {
+        // 总计数显示
+        const typeModalContent = document.querySelector('.槽点-modal-content');
+        
+        // 如果总计数元素不存在则创建
+        let totalCounter = document.getElementById('槽点-total-counter');
+        if (!totalCounter) {
+            totalCounter = document.createElement('div');
+            totalCounter.id = '槽点-total-counter';
+            totalCounter.style.cssText = `
+                background-color: #4caf50;
+                color: white;
+                padding: 8px 15px;
+                border-radius: 20px;
+                font-weight: bold;
+                text-align: center;
+                margin: 15px auto;
+                max-width: 200px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            `;
+            typeModalContent.insertBefore(totalCounter, typeModalContent.firstChild);
+        }
+        
+        // 计算所有类别中已选择的行为项总数
+        let totalSelectedBehaviors = 0;
+        Object.values(currentSessionBehaviors).forEach(behaviors => {
+            totalSelectedBehaviors += behaviors.length;
+        });
+        
+        // 更新总计数
+        totalCounter.textContent = `已选择 ${totalSelectedBehaviors} 个行为`;
+        
+        // 更新各类别的计数
+        const typeItems = document.querySelectorAll('.槽点-type-item');
+        typeItems.forEach(item => {
+            const type = item.getAttribute('data-type');
+            
+            // 获取该类别中已选择的行为项数量
+            const selectedBehaviors = currentSessionBehaviors[type] || [];
+            const count = selectedBehaviors.length;
+            
+            // 查找或创建计数器
+            let counter = item.querySelector('.槽点-category-counter');
+            if (!counter && count > 0) {
+                counter = document.createElement('span');
+                counter.className = '槽点-category-counter';
+                counter.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background-color: #f44336;
+                    color: white;
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 12px;
+                    font-weight: bold;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                `;
+                item.style.position = 'relative';
+                item.appendChild(counter);
+            }
+            
+            // 更新或删除计数器
+            if (counter) {
+                if (count > 0) {
+                    counter.textContent = count;
+                } else {
+                    item.removeChild(counter);
+                }
+            }
+        });
+    }
+
+    // 在初始化最后添加:
+    setTimeout(updateCategoryCounters, 500);
 });

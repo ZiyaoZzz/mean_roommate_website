@@ -34,46 +34,136 @@ document.addEventListener('DOMContentLoaded', function() {
         progressBar: document.getElementById('quiz-progress-bar-inner')
     });
     
-    // 异步加载问题数据
+    // 修改异步加载问题数据函数，修复所有引号转义问题
     async function loadQuestions() {
         try {
-            console.log("开始加载问卷问题...");
+            console.log("使用内嵌问题数据...");
             
-            // 尝试多个可能的路径
-            let response;
-            let fetchPath = '';
-            
-            // 尝试这些路径顺序是有意义的 - 从最可能到最不可能
-            const possiblePaths = [
-                '/questions.json',         // 网站根目录
-                './questions.json',        // 当前目录
-                '../questions.json',       // 上一级目录
-                '/docs/questions.json',    // docs目录
-                'https://mean-roommate-website.onrender.com/questions.json' // 完整URL (最后尝试)
+            // 直接在代码中嵌入所有问题数据，修复引号转义
+            questions = [
+                {
+                  "id": 1,
+                  "text": "晚上你敲室友房门借零食，对方最可能的反应是：",
+                  "options": [
+                    { "label": "A. 冷哼一句\"自己去找\"",    "scores": { "lazy": 0, "sarcasm": 3, "social": 0 } },
+                    { "label": "B. 立刻拿出来招待你",        "scores": { "lazy": 0, "sarcasm": 0, "social": 2 } },
+                    { "label": "C. 直接拒绝说\"我也没了\"",   "scores": { "lazy": 2, "sarcasm": 0, "social": 0 } },
+                    { "label": "D. 偷偷留一包不声不响",      "scores": { "lazy": 1, "sarcasm": 1, "social": 1 } }
+                  ]
+                },
+                {
+                  "id": 2,
+                  "text": "一起做家务时，他/她最常说的一句话是：",
+                  "options": [
+                    { "label": "A. \"你先做，我一会儿来\"",   "scores": { "lazy": 2, "sarcasm": 1, "social": 0 } },
+                    { "label": "B. \"家务算我的功课吗？\"",   "scores": { "lazy": 1, "sarcasm": 3, "social": 0 } },
+                    { "label": "C. \"我来搞定！\"",           "scores": { "lazy": 0, "sarcasm": 0, "social": 2 } },
+                    { "label": "D. \"我好累，改天吧\"",       "scores": { "lazy": 3, "sarcasm": 2, "social": 0 } }
+                  ]
+                },
+                {
+                  "id": 3,
+                  "text": "清晨他起床最可能的场景：",
+                  "options": [
+                    { "label": "A. 闹铃响不停地赖床",       "scores": { "lazy": 3, "sarcasm": 0, "social": 0 } },
+                    { "label": "B. 起床后一脸苦相",          "scores": { "lazy": 2, "sarcasm": 1, "social": 0 } },
+                    { "label": "C. 闹钟响了还要骂半天",      "scores": { "lazy": 1, "sarcasm": 3, "social": 0 } },
+                    { "label": "D. 早早起床锻炼",            "scores": { "lazy": 0, "sarcasm": 0, "social": 2 } }
+                  ]
+                },
+                {
+                  "id": 4,
+                  "text": "每次网络突然断了，他/她的第一反应：",
+                  "options": [
+                    { "label": "A. 直接回房睡觉",            "scores": { "lazy": 3, "sarcasm": 0, "social": 0 } },
+                    { "label": "B. 去敲你房门\"能网吗？\"",   "scores": { "lazy": 1, "sarcasm": 1, "social": 1 } },
+                    { "label": "C. 抱怨\"怎么又断了\"",        "scores": { "lazy": 0, "sarcasm": 2, "social": 0 } },
+                    { "label": "D. 立刻去找路由器重启",      "scores": { "lazy": 0, "sarcasm": 0, "social": 2 } }
+                  ]
+                },
+                {
+                  "id": 5,
+                  "text": "月底话费快没了，他/她会怎么做：",
+                  "options": [
+                    { "label": "A. 借你的流量卡",            "scores": { "lazy": 1, "sarcasm": 0, "social": 1 } },
+                    { "label": "B. 干脆不回消息了",          "scores": { "lazy": 3, "sarcasm": 1, "social": 0 } },
+                    { "label": "C. 跟运营商续费",            "scores": { "lazy": 0, "sarcasm": 0, "social": 2 } },
+                    { "label": "D. 找借口\"下个月再交\"",      "scores": { "lazy": 2, "sarcasm": 2, "social": 0 } }
+                  ]
+                },
+                {
+                  "id": 6,
+                  "text": "宿舍停电，他/她最可能做的是：",
+                  "options": [
+                    { "label": "A. 继续睡大觉",              "scores": { "lazy": 3, "sarcasm": 0, "social": 0 } },
+                    { "label": "B. 去找别人要手电筒",        "scores": { "lazy": 1, "sarcasm": 1, "social": 1 } },
+                    { "label": "C. 抱怨\"这世道\"",            "scores": { "lazy": 0, "sarcasm": 3, "social": 0 } },
+                    { "label": "D. 找蜡烛看书",              "scores": { "lazy": 0, "sarcasm": 0, "social": 2 } }
+                  ]
+                },
+                {
+                  "id": 7,
+                  "text": "你做饭时，他/她最可能的表现是：",
+                  "options": [
+                    { "label": "A. 吃完直接溜，不留碗筷",   "scores": { "lazy": 3, "sarcasm": 0, "social": 0 } },
+                    { "label": "B. 问\"你怎么又没放盐？\"",  "scores": { "lazy": 1, "sarcasm": 1, "social": 0 } },
+                    { "label": "C. 在旁边抱怨油烟味",       "scores": { "lazy": 0, "sarcasm": 2, "social": 0 } },
+                    { "label": "D. 主动帮忙洗菜收拾",       "scores": { "lazy": 0, "sarcasm": 0, "social": 2 } }
+                  ]
+                },
+                {
+                  "id": 8,
+                  "text": "周末大家想去郊游，他/她最可能说：",
+                  "options": [
+                    { "label": "A. \"景点也就那样嘛\"",       "scores": { "lazy": 0, "sarcasm": 3, "social": 0 } },
+                    { "label": "B. \"你们去吧，别等我\"",     "scores": { "lazy": 2, "sarcasm": 1, "social": 0 } },
+                    { "label": "C. \"我太累，不去了\"",       "scores": { "lazy": 3, "sarcasm": 0, "social": 0 } },
+                    { "label": "D. \"太好了，一起去！\"",     "scores": { "lazy": 0, "sarcasm": 0, "social": 2 } }
+                  ]
+                },
+                {
+                  "id": 9,
+                  "text": "宿舍门忘了锁，他/她会：",
+                  "options": [
+                    { "label": "A. 骂一句\"太不安全了\"",    "scores": { "lazy": 0, "sarcasm": 2, "social": 0 } },
+                    { "label": "B. 主动跑出去帮锁门",       "scores": { "lazy": 0, "sarcasm": 0, "social": 2 } },
+                    { "label": "C. 问\"门哪儿开了？\"",      "scores": { "lazy": 1, "sarcasm": 1, "social": 0 } },
+                    { "label": "D. 无所谓，继续玩手机",     "scores": { "lazy": 3, "sarcasm": 0, "social": 0 } }
+                  ]
+                },
+                {
+                  "id": 10,
+                  "text": "发现公共区域垃圾堆满，他/她最可能做什么：",
+                  "options": [
+                    { "label": "A. 抱怨\"谁又没扔垃圾\"",    "scores": { "lazy": 0, "sarcasm": 3, "social": 0 } },
+                    { "label": "B. 自己动手清理掉",         "scores": { "lazy": 0, "sarcasm": 0, "social": 2 } },
+                    { "label": "C. 去敲门让大家一起清",     "scores": { "lazy": 1, "sarcasm": 1, "social": 1 } },
+                    { "label": "D. 继续走开不管",           "scores": { "lazy": 3, "sarcasm": 0, "social": 0 } }
+                  ]
+                },
+                {
+                  "id": 11,
+                  "text": "晚上他/她去洗澡，你最可能听到的声音是：",
+                  "options": [
+                    { "label": "A. 呼噜声（睡着了）",      "scores": { "lazy": 3, "sarcasm": 0, "social": 0 } },
+                    { "label": "B. 放歌洗澡",               "scores": { "lazy": 0, "sarcasm": 0, "social": 2 } },
+                    { "label": "C. 抱怨\"水又凉了\"",        "scores": { "lazy": 0, "sarcasm": 2, "social": 0 } },
+                    { "label": "D. 嘟囔\"洗个澡也累\"",      "scores": { "lazy": 2, "sarcasm": 1, "social": 0 } }
+                  ]
+                },
+                {
+                  "id": 12,
+                  "text": "临近期末，他/她对你说的第一句话是：",
+                  "options": [
+                    { "label": "A. \"等我考完再说\"",        "scores": { "lazy": 3, "sarcasm": 0, "social": 0 } },
+                    { "label": "B. \"一起复习吧\"",          "scores": { "lazy": 0, "sarcasm": 0, "social": 2 } },
+                    { "label": "C. \"你考怎么样？\"",        "scores": { "lazy": 1, "sarcasm": 1, "social": 1 } },
+                    { "label": "D. \"好像没那么必要\"",      "scores": { "lazy": 2, "sarcasm": 1, "social": 0 } }
+                  ]
+                }
             ];
             
-            // 尝试每个路径直到成功
-            for (const path of possiblePaths) {
-                try {
-                    console.log(`尝试从 ${path} 加载...`);
-                    response = await fetch(path);
-                    
-                    if (response.ok) {
-                        console.log(`成功从 ${path} 加载`);
-                        fetchPath = path;
-                        break;
-                    }
-                } catch (e) {
-                    console.log(`从 ${path} 加载失败: ${e.message}`);
-                }
-            }
-            
-            if (!response || !response.ok) {
-                throw new Error(`所有路径尝试均失败`);
-            }
-            
-            questions = await response.json();
-            console.log(`成功从 ${fetchPath} 加载 ${questions.length} 个问题`);
+            console.log(`成功加载 ${questions.length} 个问题`);
             
             // 初始化用户答案数组
             userAnswers = new Array(questions.length).fill(null);
@@ -86,7 +176,6 @@ document.addEventListener('DOMContentLoaded', function() {
             quizContainer.innerHTML = `
                 <div class="error-message">
                     <p>加载问题失败: ${error.message}</p>
-                    <p>请检查网络连接或刷新页面重试</p>
                     <button onclick="window.location.reload()">刷新页面</button>
                 </div>
             `;

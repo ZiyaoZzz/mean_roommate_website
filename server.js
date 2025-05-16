@@ -276,9 +276,85 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+// 添加新API端点用于生成室友吐槽
+app.post('/api/roast', async (req, res) => {
+  try {
+    console.log('收到室友吐槽请求:', req.body);
+    
+    // 获取访问令牌
+    const token = await getAccessToken();
+    
+    const { behaviors } = req.body;
+    
+    if (!behaviors) {
+      throw new Error('缺少行为描述');
+    }
+
+    // 构建提示
+    const prompt = `根据以下描述的室友行为，生成一段幽默风趣的吐槽（4-6句话）：
+${behaviors}
+
+要求：
+1. 使用生活化、年轻人的语言风格
+2. 融入当下流行的梗和emoji表情
+3. 表达应该带有讽刺，可以刻薄
+4. 直接写吐槽内容，不要加引号或提示语`;
+    
+    console.log('发送到Gemini的提示:', prompt);
+    
+    // 调用Gemini API
+    const response = await axios.post(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-002:generateContent',
+      {
+        contents: [{ 
+          parts: [{ text: prompt }]
+        }],
+        generationConfig: {
+          temperature: 0.8,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 120
+        }
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    // 从响应中提取生成的文本
+    const generatedText = response.data.candidates[0].content.parts[0].text;
+    console.log('生成的吐槽:', generatedText);
+    
+    // 返回结果
+    res.json({ 
+      response: generatedText 
+    });
+    
+  } catch (error) {
+    console.error("生成吐槽内容错误:", error);
+    
+    // 提供更详细的错误信息
+    let errorMessage = "生成吐槽失败";
+    let errorDetails = error.message;
+    
+    if (error.response) {
+      console.error("API错误响应:", JSON.stringify(error.response.data, null, 2));
+      errorDetails = JSON.stringify(error.response.data);
+    }
+    
+    res.status(500).json({ 
+      error: errorMessage, 
+      details: errorDetails,
+      fallback: "这室友简直是生活智慧百科全书的反面教材，日常操作让人叹为观止！🙄👻"
+    });
+  }
+});
+
 // 健康检查端点（Render需要）
 app.get('/health', (req, res) => {
-  res.status(200).send('OK');
 });
 
 app.listen(port, () => {

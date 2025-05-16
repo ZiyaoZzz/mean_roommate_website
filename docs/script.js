@@ -94,20 +94,31 @@ document.addEventListener('DOMContentLoaded', function() {
     generateSpeechBtn.addEventListener('click', async function() {
         // 获取当前选择的语气
         let selectedTone = 'passive'; // 默认冷暴力
-        for (let i = 0; i < toneRadios.length; i++) {
-            if (toneRadios[i].checked) {
-                selectedTone = toneRadios[i].value;
-                break;
+        
+        // 添加null检查
+        if (toneRadios && toneRadios.length > 0) {
+            for (let i = 0; i < toneRadios.length; i++) {
+                if (toneRadios[i] && toneRadios[i].checked) {
+                    selectedTone = toneRadios[i].value;
+                    break;
+                }
             }
         }
         
-        // 获取上下文
+        // 获取上下文 - 添加null检查
         const context = { issues: [] };
-        if (document.getElementById('dishes').checked) context.issues.push("不洗碗");
-        if (document.getElementById('shampoo').checked) context.issues.push("用了室友的洗发水");
-        if (document.getElementById('noise').checked) context.issues.push("半夜吵闹");
-        if (document.getElementById('trash').checked) context.issues.push("不倒垃圾");
-        if (document.getElementById('food').checked) context.issues.push("偷吃零食");
+        const dishesElem = document.getElementById('dishes');
+        const shampooElem = document.getElementById('shampoo');
+        const noiseElem = document.getElementById('noise');
+        const trashElem = document.getElementById('trash');
+        const foodElem = document.getElementById('food');
+        
+        // 只有在元素存在时才访问checked属性
+        if (dishesElem && dishesElem.checked) context.issues.push("不洗碗");
+        if (shampooElem && shampooElem.checked) context.issues.push("用了室友的洗发水");
+        if (noiseElem && noiseElem.checked) context.issues.push("半夜吵闹");
+        if (trashElem && trashElem.checked) context.issues.push("不倒垃圾");
+        if (foodElem && foodElem.checked) context.issues.push("偷吃零食");
         
         // 显示加载状态
         speechContent.textContent = "正在思考回应...";
@@ -308,13 +319,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const clownPercent = Math.round((scores.clown / totalScore) * 100);
         
         // 更新进度条和百分比文本
-        document.getElementById('lazy-bar').style.width = lazyPercent + '%';
-        document.getElementById('liar-bar').style.width = liarPercent + '%';
-        document.getElementById('clown-bar').style.width = clownPercent + '%';
+        const lazyBar = document.getElementById('lazy-bar');
+        const liarBar = document.getElementById('liar-bar');
+        const clownBar = document.getElementById('clown-bar');
         
-        document.getElementById('lazy-percent').textContent = lazyPercent + '%';
-        document.getElementById('liar-percent').textContent = liarPercent + '%';
-        document.getElementById('clown-percent').textContent = clownPercent + '%';
+        if (lazyBar) lazyBar.style.width = lazyPercent + '%';
+        if (liarBar) liarBar.style.width = liarPercent + '%';
+        if (clownBar) clownBar.style.width = clownPercent + '%';
+        
+        const lazyPercentText = document.getElementById('lazy-percent');
+        const liarPercentText = document.getElementById('liar-percent');
+        const clownPercentText = document.getElementById('clown-percent');
+        
+        if (lazyPercentText) lazyPercentText.textContent = lazyPercent + '%';
+        if (liarPercentText) liarPercentText.textContent = liarPercent + '%';
+        if (clownPercentText) clownPercentText.textContent = clownPercent + '%';
         
         // 确定主要人格类型
         let mainPersonality = 'balanced';

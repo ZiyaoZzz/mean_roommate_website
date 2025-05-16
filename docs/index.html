@@ -16,7 +16,7 @@
 
         <!-- 确保这个按钮放在显眼的位置 -->
         <div class="槽点-trigger-container">
-            <button id="槽点-trigger-btn" class="槽点-trigger-btn">🔥 回忆槽点瞬间</button>
+            <button id="槽点-trigger-btn" class="槽点-trigger-btn">🔥 点我回忆槽点瞬间 + 生成AI吐槽</button>
         </div>
 
         <!-- AI 室友发言模拟器 -->
@@ -132,16 +132,8 @@
                     </div>
                 </div>
                 
-                <div class="槽点-emotion-container">
-                    <h4>当时被坑程度 (1-5)</h4>
-                    <div class="槽点-emotion-rating">
-                        <div class="槽点-emotion-item" data-value="1">😒<span>1</span></div>
-                        <div class="槽点-emotion-item" data-value="2">😤<span>2</span></div>
-                        <div class="槽点-emotion-item" data-value="3">😡<span>3</span></div>
-                        <div class="槽点-emotion-item" data-value="4">🤬<span>4</span></div>
-                        <div class="槽点-emotion-item" data-value="5">💥<span>5</span></div>
-                    </div>
-                </div>
+
+
                 
                 <div class="槽点-buttons">
                     <button id="槽点-behaviors-back" class="槽点-back-btn">返回</button>
@@ -195,7 +187,7 @@
         <!-- 添加室友人格诊断问卷系统 -->
         <div class="personality-quiz-section">
             <h2>🧟‍♂️ 室友人格诊断问卷</h2>
-            <p class="quiz-intro">回答以下问题，精准分析你的室友属于哪类人格！</p>
+            <p class="quiz-intro">回答以下问题，精准分析你的室友属于哪类人格！(12道题目)</p>
             
             <div class="quiz-progress">
                 <div class="quiz-progress-bar">
@@ -502,7 +494,7 @@
             
             // 设置不同的头像
             if (sender === 'user') {
-                avatarImg.src = 'https://i.imgur.com/q19Tkjd.png'; // 用户头像URL
+                avatarImg.src = '../img/mean_avatar.jpeg'; // 用户头像URL
                 avatarImg.alt = '用户头像';
             } else {
                 avatarImg.src = '../img/mean_avatar.jpeg';

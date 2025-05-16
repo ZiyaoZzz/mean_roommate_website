@@ -1150,3 +1150,171 @@ input[type="time"] {
     justify-content: center;
     margin-top: 20px;
 }
+
+/* 累积结果样式 */
+.槽点-cumulative-results {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #ddd;
+}
+
+.槽点-view-records-btn, .槽点-clear-records-btn {
+    padding: 8px 15px;
+    margin: 10px 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.槽点-view-records-btn {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.槽点-clear-records-btn {
+    background-color: #e25c4a;
+    color: white;
+}
+
+/* 记录列表样式 */
+.槽点-records-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.槽点-record-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.槽点-record-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.槽点-record-scores {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+}
+
+.槽点-record-scores span {
+    margin-right: 10px;
+}
+
+/* 保存确认提示样式 */
+.槽点-saved-confirmation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(46, 125, 50, 0.9);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: opacity 0.5s;
+}
+
+.槽点-confirmation-content {
+    display: flex;
+    align-items: center;
+}
+
+.槽点-confirmation-icon {
+    font-size: 24px;
+    margin-right: 15px;
+}
+
+.槽点-confirmation-text p {
+    margin: 5px 0;
+}
+
+.槽点-confirmation-count {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+/* 按钮样式 */
+.view-all-results-btn {
+    display: block;
+    margin: 20px auto 10px;
+    padding: 10px 15px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.view-all-results-btn.disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* 结果页面样式 */
+.槽点-result-summary {
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.槽点-pattern-description, 
+.槽点-strategy {
+    margin-top: 20px;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid #4a90e2;
+}
+
+.槽点-strategy ul {
+    padding-left: 20px;
+}
+
+.槽点-strategy li {
+    margin-bottom: 8px;
+}
+
+.槽点-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.槽点-back-btn,
+.槽点-view-btn,
+.槽点-clear-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.槽点-back-btn {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.槽点-view-btn {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.槽点-clear-btn {
+    background-color: #e25c4a;
+    color: white;
+}
