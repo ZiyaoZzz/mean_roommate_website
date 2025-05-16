@@ -298,12 +298,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (isCurrentlySelected) {
                         // 不添加selected类，实现取消选择
                         
-                        // 更新选中行为的情绪值为空或默认值
-                        selectedBehaviors.forEach(b => {
-                            if (b.text === behaviors[behaviorIndex].text) {
-                                b.emotion = null;
-                            }
-                        });
+                        // 自动取消勾选该行为的复选框
+                        const checkbox = document.getElementById(`behavior-${behaviorIndex}`);
+                        if (checkbox && checkbox.checked) {
+                            checkbox.checked = false;
+                            
+                            // 手动触发change事件，确保数据更新
+                            const event = new Event('change');
+                            checkbox.dispatchEvent(event);
+                        }
                     } else {
                         // 添加当前选中状态
                         this.classList.add('selected');
@@ -335,7 +338,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     const behaviorWithEmotion = {...behaviors[index], emotion: 3};
                     selectedBehaviors.push(behaviorWithEmotion);
                 } else {
+                    // 取消选择时从selectedBehaviors中移除
                     selectedBehaviors = selectedBehaviors.filter(b => b.text !== behaviors[index].text);
+                    
+                    // 同时从currentSessionBehaviors中移除
+                    if (currentSessionBehaviors[selectedType]) {
+                        currentSessionBehaviors[selectedType] = currentSessionBehaviors[selectedType].filter(
+                            b => b.text !== behaviors[index].text
+                        );
+                        
+                        // 立即更新类别计数
+                        updateCategoryCounters();
+                    }
+                    
+                    // 移除相应的情绪评级选中状态
+                    const emotionItems = document.querySelectorAll(`.槽点-emotion-item[data-index="${index}"]`);
+                    emotionItems.forEach(item => {
+                        item.classList.remove('selected');
+                    });
                 }
             });
         });
@@ -514,10 +534,64 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             currentSessionScores.categories[selectedType]++;
         }
+
+        // 更新当前会话的events数组，确保它只包含当前选择的行为
+        // 先清空events数组
+        currentSessionScores.events = [];
+        
+        // 遍历currentSessionBehaviors，重新构建events数组
+        for (const type in currentSessionBehaviors) {
+            if (currentSessionBehaviors[type].length > 0) {
+                const behaviors = currentSessionBehaviors[type];
+                const typeTitle = behaviorData[type].title;
+                
+                // 计算该类型的总分
+                let totalLazy = 0;
+                let totalSarcasm = 0;
+                let totalSocial = 0;
+                
+                behaviors.forEach(behavior => {
+                    const emotionFactor = behavior.emotion / 3;
+                    totalLazy += behavior.scores.lazy * emotionFactor;
+                    totalSarcasm += behavior.scores.sarcasm * emotionFactor;
+                    totalSocial += behavior.scores.social * emotionFactor;
+                });
+                
+                // 添加到events
+                currentSessionScores.events.push({
+                    type: type,
+                    title: typeTitle,
+                    behaviors: behaviors,
+                    scores: {
+                        lazy: totalLazy,
+                        sarcasm: totalSarcasm,
+                        social: totalSocial
+                    },
+                    timestamp: new Date().toLocaleString()
+                });
+            }
+        }
+        
+        // 重新计算总分
+        currentSessionScores.lazy = 0;
+        currentSessionScores.sarcasm = 0;
+        currentSessionScores.social = 0;
+        
+        currentSessionScores.events.forEach(event => {
+            currentSessionScores.lazy += event.scores.lazy;
+            currentSessionScores.sarcasm += event.scores.sarcasm;
+            currentSessionScores.social += event.scores.social;
+        });
     }
 
     // 显示保存确认提示
     function showSavedConfirmation() {
+        // 计算所有类别中实际选择的行为项总数
+        let totalSelectedBehaviors = 0;
+        Object.values(currentSessionBehaviors).forEach(behaviors => {
+            totalSelectedBehaviors += behaviors.length;
+        });
+        
         const confirmationDiv = document.createElement('div');
         confirmationDiv.className = '槽点-saved-confirmation';
         confirmationDiv.innerHTML = `
@@ -525,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="槽点-confirmation-icon">✓</div>
                 <div class="槽点-confirmation-text">
                     <p>已保存槽点事件</p>
-                    <p class="槽点-confirmation-count">已累积 ${currentSessionScores.events.length} 个槽点</p>
+                    <p class="槽点-confirmation-count">已累积 ${totalSelectedBehaviors} 个槽点</p>
                 </div>
             </div>
         `;
